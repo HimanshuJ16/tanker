@@ -45,10 +45,10 @@ export default function DriversPage() {
     licenseNumber: '',
     contactNumber: '',
   })
-
-  const handleInputChange = (e: { target: { name: any; value: any } }) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleAddDriver = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
@@ -80,22 +80,19 @@ export default function DriversPage() {
         columns={columns}
         data={drivers}
         onAdd={() => setIsAddDialogOpen(true)}
-        onEdit={(driver) => {
-          setCurrentDriver(driver as {
-            id: string;
-            firstName: string;
-            lastName: string;
-            licenseNumber: string;
-            contactNumber: string;
-            userId: string;
-          });
-          setFormData(driver as {
-            firstName: string;
-            lastName: string;
-            licenseNumber: string;
-            contactNumber: string;
-            userId: string;
-          });
+        onEdit={(driver: Required<Partial<{
+          id: string;
+          firstName: string;
+          lastName: string;
+          licenseNumber: string;
+          contactNumber: string;
+          status: string | null;
+          createdAt: Date;
+          updatedAt: Date;
+          userId: string | null;
+        }>>) => {
+          setCurrentDriver(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; userId: string; });
+          setFormData(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; userId: string; });
           setIsEditDialogOpen(true);
         }}
         onDelete={handleDeleteDriver}
