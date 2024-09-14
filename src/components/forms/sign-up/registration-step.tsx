@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import TypeSelectionForm from './type-selection-form'
 import dynamic from 'next/dynamic'
-import { Spinner } from '@/components/spinner'
+// import { Spinner } from '@/components/spinner'
 
 const DetailForm = dynamic(() => import('./account-details-form'), {
   ssr: false,
@@ -16,9 +16,9 @@ const OTPForm = dynamic(() => import('./otp-form'), {
   // loading: Spinner,
 })
 
-type Props = {}
+// type Props = {}
 
-const RegistrationFormStep = (props: Props) => {
+const RegistrationFormStep = () => {
   const {
     register,
     formState: { errors },

@@ -2,9 +2,9 @@ import React from 'react'
 import BreadCrumb from './bread-crumb'
 import { getUserFullName } from '@/actions/settings'
 
-type Props = {}
+// type Props = {}
 
-const InfoBar = async (props: Props) => {
+const InfoBar = async () => {
   const fullname = await getUserFullName();
   if(!fullname) return null
   return (

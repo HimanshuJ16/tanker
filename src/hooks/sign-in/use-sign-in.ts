@@ -15,35 +15,56 @@ export const useSignInForm = () => {
     resolver: zodResolver(UserLoginSchema),
     mode: 'onChange',
   })
-  const onHandleSubmit = methods.handleSubmit(
-    async (values: UserLoginProps) => {
-      if (!isLoaded) return
 
-      try {
-        setLoading(true)
-        const authenticated = await signIn.create({
-          identifier: values.email,
-          password: values.password,
-        })
-
-        if (authenticated.status === 'complete') {
-          await setActive({ session: authenticated.createdSessionId })
-          toast({
-            title: 'Success',
-            description: 'Welcome back!',
-          })
-          router.push('/dashboard')
-        }
-      } catch (error: any) {
-        setLoading(false)
-        if (error.errors[0].code === 'form_password_incorrect')
-          toast({
-            title: 'Error',
-            description: 'email/password is incorrect try again',
-          })
-      }
+  const onHandleSubmit = methods.handleSubmit(async (values: UserLoginProps) => {
+    if (!isLoaded || !signIn) {
+      toast({
+        title: 'Error',
+        description: 'Authentication system is not ready',
+      })
+      return
     }
-  )
+
+    setLoading(true)
+    try {
+      const result = await signIn.create({
+        identifier: values.email,
+        password: values.password,
+      })
+
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId })
+        toast({
+          title: 'Success',
+          description: 'Welcome back!',
+        })
+        router.push('/dashboard')
+      } else {
+        throw new Error('Authentication failed')
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: 'Error',
+          description: error.message || 'An unexpected error occurred',
+        })
+      } else if (typeof error === 'object' && error !== null && 'errors' in error) {
+        const clerkError = error as { errors: Array<{ code: string, message: string }> }
+        const errorMessage = clerkError.errors[0]?.message || 'An unexpected error occurred'
+        toast({
+          title: 'Error',
+          description: errorMessage,
+        })
+      } else {
+        toast({
+          title: 'Error',
+          description: 'An unexpected error occurred',
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
+  })
 
   return {
     methods,

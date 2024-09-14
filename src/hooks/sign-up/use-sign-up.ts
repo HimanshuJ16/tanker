@@ -1,4 +1,5 @@
 'use client'
+
 import { useToast } from '@/hooks/use-toast'
 import {
   UserRegistrationProps,
@@ -29,7 +30,13 @@ export const useSignUpForm = () => {
     password: string,
     onNext: React.Dispatch<React.SetStateAction<number>>
   ) => {
-    if (!isLoaded) return
+    if (!isLoaded) {
+      toast({
+        title: 'Error',
+        description: 'Authentication system is not ready.',
+      })
+      return
+    }
 
     try {
       await signUp.create({
@@ -40,17 +47,24 @@ export const useSignUpForm = () => {
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
 
       onNext((prev) => prev + 1)
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
       toast({
         title: 'Error',
-        description: error.errors[0].longMessage,
+        description: errorMessage,
       })
     }
   }
 
   const onHandleSubmit = methods.handleSubmit(
     async (values: UserRegistrationProps) => {
-      if (!isLoaded) return
+      if (!isLoaded) {
+        toast({
+          title: 'Error',
+          description: 'Authentication system is not ready.',
+        })
+        return
+      }
 
       try {
         setLoading(true)
@@ -59,42 +73,40 @@ export const useSignUpForm = () => {
         })
 
         if (completeSignUp.status !== 'complete') {
-          return { message: 'Something went wrong!' }
+          throw new Error('Something went wrong during sign up completion.')
         }
 
-        if (completeSignUp.status == 'complete') {
-          if (!signUp.createdUserId) return
-
-          const registered = await onCompleteUserRegistration(
-            values.fullname,
-            signUp.createdUserId,
-            values.type
-          )
-
-          if (registered?.status == 200 && registered.user) {
-            await setActive({
-              session: completeSignUp.createdSessionId,
-            })
-
-            setLoading(false)
-            router.push('/dashboard')
-          }
-
-          if (registered?.status == 400) {
-            toast({
-              title: 'Error',
-              description: 'Something went wrong!',
-            })
-          }
+        if (!signUp.createdUserId) {
+          throw new Error('User ID is missing after sign up.')
         }
-      } catch (error: any) {
+
+        const registered = await onCompleteUserRegistration(
+          values.fullname,
+          signUp.createdUserId,
+          values.type
+        )
+
+        if (registered?.status !== 200 || !registered.user) {
+          throw new Error('User registration failed.')
+        }
+
+        await setActive({
+          session: completeSignUp.createdSessionId,
+        })
+
+        setLoading(false)
+        router.push('/dashboard')
+      } catch (error) {
+        setLoading(false)
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
         toast({
           title: 'Error',
-          description: error.errors[0].longMessage,
+          description: errorMessage,
         })
       }
     }
   )
+
   return {
     methods,
     onHandleSubmit,

@@ -5,9 +5,9 @@ import RegistrationFormStep from '@/components/forms/sign-up/registration-step'
 
 import React from 'react'
 
-type Props = {}
+// type Props = {}
 
-const SignUp = (props: Props) => {
+const SignUp = () => {
   return (
     <div className="flex-1 py-36 md:px-16 w-full">
       <div className="flex flex-col h-full gap-3">

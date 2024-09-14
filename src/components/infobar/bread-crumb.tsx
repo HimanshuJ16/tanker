@@ -2,9 +2,9 @@
 import useSideBar from '@/context/use-sidebar'
 import React from 'react'
 
-type Props = {}
+// type Props = {}
 
-const BreadCrumb = (props: Props) => {
+const BreadCrumb = () => {
   const {
     page,
   } = useSideBar()

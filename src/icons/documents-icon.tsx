@@ -1,8 +1,8 @@
 import React from 'react'
 
-type Props = {}
+// type Props = {}
 
-const DocumentsIcon = (props: Props) => {
+const DocumentsIcon = () => {
   return (
     <svg
       width="20"

@@ -1,8 +1,8 @@
 import React from 'react'
 
-type Props = {}
+// type Props = {}
 
-const PremiumBadge = (props: Props) => {
+const PremiumBadge = () => {
   return (
     <svg
       width="24"
