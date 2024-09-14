@@ -28,7 +28,7 @@ const columns = [
 ]
 
 export default function DriversPage() {
-  const { drivers, loading, onAddDriver, onUpdateDriver, onDeleteDriver } = useDrivers()
+  const { drivers, onAddDriver, onUpdateDriver, onDeleteDriver } = useDrivers()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [currentDriver, setCurrentDriver] = useState<{
