@@ -11,7 +11,7 @@ type Props = {
   options?: { value: string; label: string; id: string }[]
   label?: string
   placeholder: string
-  register: UseFormRegister<any>
+  register: UseFormRegister<FieldValues>
   name: string
   errors: FieldErrors<FieldValues>
   lines?: number
