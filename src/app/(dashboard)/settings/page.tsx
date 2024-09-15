@@ -1,16 +1,25 @@
+import React from 'react'
 import ChangePassword from '@/components/settings/change-password'
 import DeleteAccount from '@/components/settings/delete-account'
-import React from 'react'
+import { Card, CardContent } from '@/components/ui/card'
 
-const Page = () => {
+const SettingsPage = () => {
   return (
-    <>
-      <div className="overflow-y-auto w-full chat-window flex-1 h-0 flex flex-col gap-10">
-        <ChangePassword />
-        <DeleteAccount />
+    <div className="py-2 px-4 sm:px-6 lg:px-8">
+      <div className="space-y-8">
+        <Card>
+          <CardContent className="p-6">
+            <ChangePassword />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <DeleteAccount />
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </div>
   )
 }
 
-export default Page
+export default SettingsPage

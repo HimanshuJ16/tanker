@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from './data-table'
 import { useDrivers } from '@/hooks/drivers/use-drivers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

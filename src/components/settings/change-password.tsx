@@ -1,12 +1,11 @@
 'use client'
+
 import { useChangePassword } from '@/hooks/settings/use-settings'
 import React from 'react'
 import Section from '../section-label'
 import FormGenerator from '../forms/form-generator'
 import { Button } from '../ui/button'
 import { Loader } from '../loader'
-
-// type Props = {}
 
 const ChangePassword = () => {
   const { register, errors, onChangePassword, loading } = useChangePassword()
@@ -29,7 +28,7 @@ const ChangePassword = () => {
             errors={errors}
             name="password"
             placeholder="New Password"
-            type="text"
+            type="password"
             inputType="input"
           />
           <FormGenerator
@@ -37,10 +36,10 @@ const ChangePassword = () => {
             errors={errors}
             name="confirmPassword"
             placeholder="Confirm Password"
-            type="text"
+            type="password"
             inputType="input"
           />
-          <Button className="bg-[#7ccff3] text-gray-700 font-semibold">
+          <Button type="submit" className="bg-[#7ccff3] text-gray-700 font-semibold">
             <Loader loading={loading}>Change Password</Loader>
           </Button>
         </div>

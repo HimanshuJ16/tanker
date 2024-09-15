@@ -1,4 +1,5 @@
 'use client'
+
 import React from 'react'
 import { Button } from '../ui/button'
 import { Loader } from '../loader'
@@ -16,10 +17,12 @@ const DeleteAccount = () => {
           message="Delete your account"
         />
       </div>     
-      <div className="lg:w-[500px] flex flex-col gap-3">
-        <Button onClick={onDelete} className="bg-red-400 hover:bg-red-500 text-gray-700 font-semibold">
-          <Loader loading={loading}>Delete Account</Loader>
-        </Button>
+      <div className="lg:col-span-4">
+        <div className="lg:w-[500px] flex flex-col gap-3">
+          <Button onClick={onDelete} className="bg-red-400 hover:bg-red-500 text-gray-700 font-semibold">
+            <Loader loading={loading}>Delete Account</Loader>
+          </Button>
+        </div>
       </div>
     </div>
   )
