@@ -1,4 +1,3 @@
-// app/actions/driver-actions.ts
 'use server'
 
 import { client } from '@/lib/prisma'
@@ -29,6 +28,7 @@ export const addDriver = async (data: {
   lastName: string
   licenseNumber: string
   contactNumber: string
+  status: string
 }) => {
   const user = await currentUser()
   if (!user) return { status: 401, message: 'Unauthorized' }
@@ -61,6 +61,7 @@ export const updateDriver = async (id: string, data: {
   lastName: string
   licenseNumber: string
   contactNumber: string
+  status: string
 }) => {
   const user = await currentUser()
   if (!user) return { status: 401, message: 'Unauthorized' }

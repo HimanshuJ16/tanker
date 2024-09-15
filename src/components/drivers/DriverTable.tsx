@@ -1,4 +1,3 @@
-// app/drivers/page.tsx
 "use client"
 
 import { useState } from 'react'
@@ -7,6 +6,7 @@ import { useDrivers } from '@/hooks/drivers/use-drivers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const columns = [
   {
@@ -25,9 +25,13 @@ const columns = [
     accessorKey: "contactNumber",
     header: "Contact Number",
   },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
 ]
 
-export default function DriversPage() {
+export default function Component() {
   const { drivers, onAddDriver, onUpdateDriver, onDeleteDriver } = useDrivers()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -37,6 +41,7 @@ export default function DriversPage() {
     lastName: string;
     licenseNumber: string;
     contactNumber: string;
+    status: string;
     userId: string;
   } | null>(null);
   const [formData, setFormData] = useState({
@@ -44,17 +49,22 @@ export default function DriversPage() {
     lastName: '',
     licenseNumber: '',
     contactNumber: '',
+    status: 'active',
   })
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleStatusChange = (value: string) => {
+    setFormData({ ...formData, status: value });
+  };
+
   const handleAddDriver = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     await onAddDriver(formData)
     setIsAddDialogOpen(false)
-    setFormData({ firstName: '', lastName: '', licenseNumber: '', contactNumber: '' })
+    setFormData({ firstName: '', lastName: '', licenseNumber: '', contactNumber: '', status: 'active' })
   }
 
   const handleUpdateDriver = async (e: { preventDefault: () => void }) => {
@@ -64,7 +74,7 @@ export default function DriversPage() {
     }
     setIsEditDialogOpen(false)
     setCurrentDriver(null)
-    setFormData({ firstName: '', lastName: '', licenseNumber: '', contactNumber: '' })
+    setFormData({ firstName: '', lastName: '', licenseNumber: '', contactNumber: '', status: 'active' })
   }
 
   const handleDeleteDriver = async (driver: { id: string }) => {
@@ -74,25 +84,15 @@ export default function DriversPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Drivers</h1>
       <DataTable
         columns={columns}
         data={drivers}
         onAdd={() => setIsAddDialogOpen(true)}
-        onEdit={(driver: Required<Partial<{
-          id: string;
-          firstName: string;
-          lastName: string;
-          licenseNumber: string;
-          contactNumber: string;
-          status: string | null;
-          createdAt: Date;
-          updatedAt: Date;
-          userId: string | null;
-        }>>) => {
-          setCurrentDriver(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; userId: string; });
-          setFormData(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; userId: string; });
+        onEdit={(driver) => {
+          setCurrentDriver(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; status: string; userId: string; });
+          setFormData(driver as { id: string; firstName: string; lastName: string; licenseNumber: string; contactNumber: string; status: string; userId: string; });
           setIsEditDialogOpen(true);
         }}
         onDelete={handleDeleteDriver}
@@ -108,6 +108,16 @@ export default function DriversPage() {
             <Input name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleInputChange} required />
             <Input name="licenseNumber" placeholder="License Number" value={formData.licenseNumber} onChange={handleInputChange} required />
             <Input name="contactNumber" placeholder="Contact Number" value={formData.contactNumber} onChange={handleInputChange} required />
+            <Select name="status" value={formData.status} onValueChange={handleStatusChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="on_leave">On Leave</SelectItem>
+                <SelectItem value="terminated">Terminated</SelectItem>
+              </SelectContent>
+            </Select>
             <Button type="submit">Add Driver</Button>
           </form>
         </DialogContent>
@@ -123,6 +133,16 @@ export default function DriversPage() {
             <Input name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleInputChange} required />
             <Input name="licenseNumber" placeholder="License Number" value={formData.licenseNumber} onChange={handleInputChange} required />
             <Input name="contactNumber" placeholder="Contact Number" value={formData.contactNumber} onChange={handleInputChange} required />
+            <Select name="status" value={formData.status} onValueChange={handleStatusChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="on_leave">On Leave</SelectItem>
+                <SelectItem value="terminated">Terminated</SelectItem>
+              </SelectContent>
+            </Select>
             <Button type="submit">Update Driver</Button>
           </form>
         </DialogContent>

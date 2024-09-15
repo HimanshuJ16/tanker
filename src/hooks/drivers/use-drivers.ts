@@ -1,4 +1,3 @@
-// hooks/use-drivers.ts
 import { useState, useEffect } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { getDrivers, addDriver, updateDriver, deleteDriver } from '@/actions/drivers'
@@ -22,7 +21,7 @@ export const useDrivers = () => {
     fetchDrivers()
   }, [])
 
-  const onAddDriver = async (data: { firstName: string; lastName: string; licenseNumber: string; contactNumber: string }) => {
+  const onAddDriver = async (data: { firstName: string; lastName: string; licenseNumber: string; contactNumber: string; status: string }) => {
     setLoading(true)
     const result = await addDriver(data)
     if (result.status === 200) {
@@ -34,7 +33,7 @@ export const useDrivers = () => {
     setLoading(false)
   }
 
-  const onUpdateDriver = async (id: string, data: { firstName: string; lastName: string; licenseNumber: string; contactNumber: string }) => {
+  const onUpdateDriver = async (id: string, data: { firstName: string; lastName: string; licenseNumber: string; contactNumber: string; status: string }) => {
     setLoading(true)
     const result = await updateDriver(id, data)
     if (result.status === 200) {
