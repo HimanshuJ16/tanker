@@ -1,8 +1,5 @@
-// // This is your Prisma schema file,
-// // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -25,82 +22,87 @@ model User {
   customers      Customer[]
   trips          Trip[]
   reports        Report[]
+  bookings       Booking[]
 }
 
 model Customer {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
-  email        String?   @unique
-  contactNumber        String?
-  address      String?
-  approved     Boolean  @default(true)
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String?  @db.Uuid
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trips        Trip[]
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  email          String?  @unique
+  contactNumber  String?
+  address        String?
+  approved       Boolean  @default(true)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String?  @db.Uuid
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trips          Trip[]
+  bookings       Booking[]
 }
 
 model Vehicle {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  vehicleNumber String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  trips        Trip[]
-  driver       Driver?  @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  driverId     String?  @db.Uuid
-  userId       String?  @db.Uuid
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports      Report[]
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vehicleNumber  String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  trips          Trip[]
+  driver         Driver?  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  driverId       String?  @db.Uuid
+  userId         String?  @db.Uuid
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports        Report[]
+  bookings       Booking[]
 }
 
 model Driver {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName String
-  lastName  String
-  licenseNumber   String   @unique
-  contactNumber     String
-  status    String?  @default("active")   // e.g., "active", "on_leave", "terminated"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId       String?  @db.Uuid
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vehicles  Vehicle[]
-  trips     Trip[]
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName      String
+  lastName       String
+  licenseNumber  String   @unique
+  contactNumber  String
+  status         String?  @default("active")   // e.g., "active", "on_leave", "terminated"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String?  @db.Uuid
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicles       Vehicle[]
+  trips          Trip[]
 }
 
 model Trip {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  startTime  DateTime
-  endTime    DateTime?
-  distance   Float?
-  status     String   // e.g., "in_progress", "completed", "cancelled"
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  vehicleId  String   @db.Uuid
-  driver     Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  driverId   String   @db.Uuid
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId String   @db.Uuid
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String   @db.Uuid
-  locations  GpsLocation[]
-  reports    Report[]
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  startTime      DateTime?
+  endTime        DateTime?
+  distance       Float?
+  status         String   // e.g., "in_progress", "completed", "cancelled"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId      String   @db.Uuid
+  driver         Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  driverId       String   @db.Uuid
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId     String   @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String   @db.Uuid
+  locations      GpsLocation[]
+  reports        Report[]
+  booking        Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId      String?  @db.Uuid
 }
 
 model GpsLocation {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  latitude  Float
-  longitude Float
-  altitude  Float?
-  speed     Float?
-  heading   Float?
-  timestamp DateTime
-  createdAt DateTime @default(now())
-  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  tripId    String    @db.Uuid
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  latitude       Float
+  longitude      Float
+  altitude       Float?
+  speed          Float?
+  heading        Float?
+  timestamp      DateTime
+  createdAt      DateTime @default(now())
+  trip           Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId         String   @db.Uuid
 }
 
 model Report {
@@ -116,5 +118,23 @@ model Report {
   vehicleId        String   @db.Uuid
   trips            Trip[]
   generatedBy      User     @relation(fields: [generatedByUserId], references: [id], onDelete: Cascade)
-  generatedByUserId String   @db.Uuid
+  generatedByUserId String  @db.Uuid
+}
+
+model Booking {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status           String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  customer         Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId       String   @db.Uuid
+  customerName     String
+  customerAddress  String
+  contactNumber    String
+  vehicle          Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId        String   @db.Uuid
+  vehicleNumber    String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String   @db.Uuid
+  trips            Trip[]
 }
