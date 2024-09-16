@@ -38,7 +38,7 @@ export const getDashboardData = async (startDate?: Date, endDate?: Date) => {
     ])
 
     const monthlyTripData = monthlyTrips.map(item => ({
-      month: item.startTime.toLocaleString('default', { month: 'short' }),
+      month: item.startTime?.toLocaleString('default', { month: 'short' }) ?? '',
       count: item._count
     }))
 
