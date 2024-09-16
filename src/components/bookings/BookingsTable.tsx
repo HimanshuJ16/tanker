@@ -5,11 +5,10 @@ import { useState } from 'react'
 import { DataTable } from './data-table'
 import { useBookings } from '@/hooks/bookings/use-bookings'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ColumnDef } from '@tanstack/react-table'
-import { Booking, Customer, Vehicle } from '@prisma/client'
+import { Booking } from '@prisma/client'
 
 const columns: ColumnDef<Booking>[] = [
   {
@@ -50,10 +49,6 @@ export default function BookingTable() {
     status: 'pending',
   })
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value })
   }
