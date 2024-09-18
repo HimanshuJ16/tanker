@@ -12,12 +12,7 @@ import { Calendar as CalendarIcon, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-
-// Extend the jsPDF type to include autoTable
-interface jsPDFWithAutoTable extends jsPDF {
-  autoTable: typeof autoTable;
-}
+import autoTable, { RowInput } from 'jspdf-autotable'
 
 const columns = [
   {
@@ -67,15 +62,19 @@ export default function TripsReportPage() {
 
   const handleDownloadPDF = () => {
     if (!data) return
-    const doc = new jsPDF() as jsPDFWithAutoTable
-    doc.autoTable({
-      head: [columns.map(col => col.header)],
-      body: data.map(row => columns.map(col => {
+    const doc = new jsPDF()
+    const tableData: RowInput[] = data.map(row => 
+      columns.map(col => {
         if (col.accessorKey === 'startTime' || col.accessorKey === 'endTime') {
           return row[col.accessorKey] ? format(new Date(row[col.accessorKey] as unknown as string), 'PPpp') : 'N/A'
         }
-        return row[col.accessorKey as keyof TripReportData] ?? 'N/A'
-      })),
+        return String(row[col.accessorKey as keyof TripReportData] ?? 'N/A')
+      })
+    )
+
+    autoTable(doc, {
+      head: [columns.map(col => col.header)],
+      body: tableData,
       theme: 'grid',
       styles: { fontSize: 8, cellPadding: 1 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
@@ -104,8 +103,7 @@ export default function TripsReportPage() {
   )
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-4">Trips Report</h1>
+    <div className="">
       <div className="flex flex-wrap gap-4 mb-4">
         <DatePickerButton date={startDate} setDate={setStartDate} placeholder="Pick a start date" />
         <DatePickerButton date={endDate} setDate={setEndDate} placeholder="Pick an end date" />
