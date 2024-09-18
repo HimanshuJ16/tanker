@@ -1,31 +1,18 @@
-// components/TrackingComponent.tsx
+// components/tracking/TrackingComponent.tsx
 'use client'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useTracking } from '@/hooks/tracking/use-tracking'
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Loader2, MapPin, PhoneCall } from "lucide-react"
+import dynamic from 'next/dynamic'
 
-// Fix for default marker icon
-delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/leaflet/marker.svg',
-  iconUrl: '/leaflet/marker.svg',
-  shadowUrl: '/leaflet/marker-shadow.svg',
+const TrackingMap = dynamic(() => import('./TrackingMap'), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-gray-100">Loading map...</div>
 })
-
-function MapUpdater({ center }: { center: [number, number] }) {
-  const map = useMap()
-  useEffect(() => {
-    map.setView(center)
-  }, [center, map])
-  return null
-}
 
 export default function TrackingComponent() {
   const { 
@@ -38,6 +25,16 @@ export default function TrackingComponent() {
     startTrackingTrip, 
     stopTracking 
   } = useTracking()
+
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return null
+  }
 
   if (loading) {
     return (
@@ -94,22 +91,12 @@ export default function TrackingComponent() {
               <span>Driver Contact: {trackingData.driverContactNumber}</span>
             </div>
             <div className="h-[400px] w-full rounded-md overflow-hidden">
-              <MapContainer 
-                center={trackingData.currentLocation ? [trackingData.currentLocation.lat, trackingData.currentLocation.lng] : [0, 0]} 
-                zoom={15} 
-                style={{ height: '100%', width: '100%' }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              {trackingData.currentLocation && (
+                <TrackingMap 
+                  center={[trackingData.currentLocation.lat, trackingData.currentLocation.lng]}
+                  zoom={15}
                 />
-                {trackingData.currentLocation && (
-                  <>
-                    <Marker position={[trackingData.currentLocation.lat, trackingData.currentLocation.lng]} />
-                    <MapUpdater center={[trackingData.currentLocation.lat, trackingData.currentLocation.lng]} />
-                  </>
-                )}
-              </MapContainer>
+              )}
             </div>
             {trackingData.currentLocation && (
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">

@@ -1,16 +1,15 @@
+// app/(dashboard)/tracking/page.tsx
 import dynamic from 'next/dynamic'
 
-const TrackingComponent = dynamic(() => import('@/components/tracking/tracking-map'), {
+const TrackingComponent = dynamic(() => import('@/components/tracking/TrackingComponent'), {
   ssr: false,
-  loading: () => <p>Loading map...</p>
+  loading: () => <p>Loading tracking component...</p>
 })
 
-const page = () => {
+export default function TrackingPage() {
   return (
     <div className="container mx-auto p-4">
       <TrackingComponent />
     </div>
   )
 }
-
-export default page
