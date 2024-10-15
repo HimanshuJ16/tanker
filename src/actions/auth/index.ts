@@ -1,12 +1,12 @@
 'use server'
 
 import { client } from '@/lib/prisma'
-// import { currentUser, redirectToSignIn } from '@clerk/nextjs'
 
 export const onCompleteUserRegistration = async (
   fullname: string,
   clerkId: string,
-  type: string
+  type: string,
+  district: string
 ) => {
   try {
     const registered = await client.user.create({
@@ -14,11 +14,13 @@ export const onCompleteUserRegistration = async (
         fullname,
         clerkId,
         type,
+        district,
       },
       select: {
         fullname: true,
         id: true,
         type: true,
+        district: true,
       },
     })
 
@@ -29,24 +31,3 @@ export const onCompleteUserRegistration = async (
     return { status: 400 }
   }
 }
-
-// export const onLoginUser = async () => {
-//   const user = await currentUser()
-//   if (!user) redirectToSignIn()
-//   else {
-//     try {
-//       await client.user.findUnique({
-//         where: {
-//           clerkId: user.id,
-//         },
-//         select: {
-//           fullname: true,
-//           id: true,
-//           type: true,
-//         },
-//       })
-//     } catch (error) {
-//       return { status: 400 }
-//     }
-//   }
-// }

@@ -1,34 +1,22 @@
 'use client'
 import { useAuthContextHook } from '@/context/use-auth-context'
-import React, { useState } from 'react'
+import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import TypeSelectionForm from './type-selection-form'
-import dynamic from 'next/dynamic'
-// import { Spinner } from '@/components/spinner'
+import AccountDetailsForm from './account-details-form'
+import OTPForm from './otp-form'
+import { useSignUpForm } from '@/hooks/sign-up/use-sign-up'
 
-const DetailForm = dynamic(() => import('./account-details-form'), {
-  ssr: false,
-  // loading: Spinner,
-})
-
-const OTPForm = dynamic(() => import('./otp-form'), {
-  ssr: false,
-  // loading: Spinner,
-})
-
-// type Props = {}
-
-const RegistrationFormStep = () => {
-  const {
-    register,
-    formState: { errors },
-    setValue,
-  } = useFormContext()
+export default function RegistrationFormStep() {
+  const { register, formState: { errors }, setValue } = useFormContext()
   const { currentStep } = useAuthContextHook()
-  const [onOTP, setOnOTP] = useState<string>('')
-  const [onUserType, setOnUserType] = useState<'owner' | 'student'>('owner')
+  const { districts, loading } = useSignUpForm()
+  const [onOTP, setOnOTP] = React.useState<string>('')
+  const [onUserType, setOnUserType] = React.useState<'owner' | 'supervisor'>('owner')
 
-  setValue('otp', onOTP)
+  React.useEffect(() => {
+    setValue('otp', onOTP)
+  }, [onOTP, setValue])
 
   switch (currentStep) {
     case 1:
@@ -41,9 +29,12 @@ const RegistrationFormStep = () => {
       )
     case 2:
       return (
-        <DetailForm
+        <AccountDetailsForm
           errors={errors}
           register={register}
+          setValue={setValue}
+          districts={districts}
+          loading={loading}
         />
       )
     case 3:
@@ -53,9 +44,7 @@ const RegistrationFormStep = () => {
           setOTP={setOnOTP}
         />
       )
+    default:
+      return null
   }
-
-  return <div>RegistrationFormStep</div>
 }
-
-export default RegistrationFormStep

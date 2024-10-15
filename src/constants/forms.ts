@@ -1,6 +1,6 @@
-type UserRegistrationProps = {
+export type UserRegistrationProps = {
   id: string
-  type: 'email' | 'text' | 'password'
+  type: 'email' | 'text' | 'password' | 'select'
   inputType: 'select' | 'input'
   options?: { value: string; label: string; id: string }[]
   label?: string
@@ -18,29 +18,36 @@ export const USER_REGISTRATION_FORM: UserRegistrationProps[] = [
   },
   {
     id: '2',
+    inputType: 'select',
+    placeholder: 'Select your district',
+    name: 'district',
+    type: 'select',
+  },
+  {
+    id: '3',
     inputType: 'input',
     placeholder: 'Email',
     name: 'email',
     type: 'email',
   },
   {
-    id: '3',
+    id: '4',
     inputType: 'input',
     placeholder: 'Confirm Email',
     name: 'confirmEmail',
     type: 'email',
   },
   {
-    id: '4',
+    id: '5',
     inputType: 'input',
     placeholder: 'Password',
     name: 'password',
     type: 'password',
   },
   {
-    id: '5',
+    id: '6',
     inputType: 'input',
-    placeholder: 'Confrim Password',
+    placeholder: 'Confirm Password',
     name: 'confirmPassword',
     type: 'password',
   },

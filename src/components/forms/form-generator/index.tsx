@@ -4,9 +4,11 @@ import { ErrorMessage } from '@hookform/error-message'
 import React from 'react'
 import { FieldErrors, FieldValues, UseFormRegister } from 'react-hook-form'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type Props = {
-  type: 'text' | 'email' | 'password'
+  type: 'text' | 'email' | 'password' | 'select'
   inputType: 'select' | 'input' | 'textarea'
   options?: { value: string; label: string; id: string }[]
   label?: string
@@ -17,6 +19,7 @@ type Props = {
   lines?: number
   form?: string
   defaultValue?: string
+  loading?: boolean
 }
 
 const FormGenerator = ({
@@ -31,10 +34,10 @@ const FormGenerator = ({
   label,
   lines,
   options,
+  loading,
 }: Props) => {
   switch (inputType) {
     case 'input':
-    default:
       return (
         <Label
           className="flex flex-col gap-2"
@@ -62,23 +65,28 @@ const FormGenerator = ({
       )
     case 'select':
       return (
-        <Label htmlFor={`select-${label}`}>
-          {label && label}
-          <select
-            form={form}
-            id={`select-${label}`}
-            {...register(name)}
-          >
-            {options?.length &&
-              options.map((option) => (
-                <option
-                  value={option.value}
-                  key={option.id}
-                >
-                  {option.label}
-                </option>
-              ))}
-          </select>
+        <div className="grid gap-2">
+          <Label htmlFor={`select-${label}`}>{label}</Label>
+          {loading ? (
+            <Skeleton className="h-10 w-full" />
+          ) : (
+            <Select {...register(name)}>
+              <SelectTrigger>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {options && options.length > 0 ? (
+                  options.map((option) => (
+                    <SelectItem key={option.id} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-options">No options available</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          )}
           <ErrorMessage
             errors={errors}
             name={name}
@@ -88,7 +96,7 @@ const FormGenerator = ({
               </p>
             )}
           />
-        </Label>
+        </div>
       )
     case 'textarea':
       return (
@@ -116,7 +124,8 @@ const FormGenerator = ({
           />
         </Label>
       )
-      defualt: return <></>
+    default:
+      return null
   }
 }
 

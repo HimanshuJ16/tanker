@@ -1,29 +1,64 @@
 'use client'
 
 import { useToast } from '@/hooks/use-toast'
-import {
-  UserRegistrationProps,
-  UserRegistrationSchema,
-} from '@/schemas/auth.schema'
+import { UserRegistrationProps, UserRegistrationSchema } from '@/schemas/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { onCompleteUserRegistration } from '@/actions/auth'
 
-export const useSignUpForm = () => {
+export function useSignUpForm() {
   const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(false)
+  const [districts, setDistricts] = useState<string[]>([])
+  const [districtsFetched, setDistrictsFetched] = useState<boolean>(false)
   const { signUp, isLoaded, setActive } = useSignUp()
   const router = useRouter()
+  
   const methods = useForm<UserRegistrationProps>({
     resolver: zodResolver(UserRegistrationSchema),
     defaultValues: {
       type: 'owner',
+      district: '',
     },
     mode: 'onChange',
   })
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (districtsFetched) return; // Prevent multiple fetches
+
+      setLoading(true);
+      try {
+        const response = await fetch('/api/districts')
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        if (!Array.isArray(data)) {
+          throw new Error('Unexpected data format')
+        }
+        setDistricts(data)
+        setDistrictsFetched(true)
+      } catch (error) {
+        console.error('Failed to fetch districts:', error)
+        if (error instanceof Error) {
+          console.error('Error details:', error.message)
+        }
+        toast({
+          title: 'Error',
+          description: 'Failed to load districts. Please try again later.',
+          variant: 'destructive',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDistricts()
+  }, [toast, districtsFetched])
 
   const onGenerateOTP = async (
     email: string,
@@ -34,6 +69,7 @@ export const useSignUpForm = () => {
       toast({
         title: 'Error',
         description: 'Authentication system is not ready.',
+        variant: 'destructive',
       })
       return
     }
@@ -52,6 +88,7 @@ export const useSignUpForm = () => {
       toast({
         title: 'Error',
         description: errorMessage,
+        variant: 'destructive',
       })
     }
   }
@@ -62,6 +99,7 @@ export const useSignUpForm = () => {
         toast({
           title: 'Error',
           description: 'Authentication system is not ready.',
+          variant: 'destructive',
         })
         return
       }
@@ -83,7 +121,8 @@ export const useSignUpForm = () => {
         const registered = await onCompleteUserRegistration(
           values.fullname,
           signUp.createdUserId,
-          values.type
+          values.type,
+          values.district,
         )
 
         if (registered?.status !== 200 || !registered.user) {
@@ -102,6 +141,7 @@ export const useSignUpForm = () => {
         toast({
           title: 'Error',
           description: errorMessage,
+          variant: 'destructive',
         })
       }
     }
@@ -112,5 +152,6 @@ export const useSignUpForm = () => {
     onHandleSubmit,
     onGenerateOTP,
     loading,
+    districts,
   }
 }

@@ -15,6 +15,7 @@ model User {
   fullname       String
   clerkId        String   @unique
   type           String
+  district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   vehicles       Vehicle[]
@@ -23,6 +24,8 @@ model User {
   trips          Trip[]
   reports        Report[]
   bookings       Booking[]
+
+  @@unique([clerkId, district])
 }
 
 model Customer {

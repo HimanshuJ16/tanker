@@ -5,8 +5,6 @@ import RegistrationFormStep from '@/components/forms/sign-up/registration-step'
 
 import React from 'react'
 
-// type Props = {}
-
 const SignUp = () => {
   return (
     <div className="flex-1 py-36 md:px-16 w-full">
