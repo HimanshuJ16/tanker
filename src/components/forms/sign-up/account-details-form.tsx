@@ -14,7 +14,9 @@ type Props = {
 
 export default function AccountDetailsForm({ errors, register, districts, loading, setValue }: Props) {
   React.useEffect(() => {
-    if (districts.length === 0) {
+    if (districts.length > 0) {
+      setValue('district', districts[0]); // Set default value to first district
+    } else {
       setValue('district', 'no-districts');
     }
   }, [districts, setValue]);

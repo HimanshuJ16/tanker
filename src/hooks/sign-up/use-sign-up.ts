@@ -42,6 +42,9 @@ export function useSignUpForm() {
         }
         setDistricts(data)
         setDistrictsFetched(true)
+        if (data.length > 0) {
+          methods.setValue('district', data[0]) // Set default district
+        }
       } catch (error) {
         console.error('Failed to fetch districts:', error)
         if (error instanceof Error) {
@@ -58,7 +61,7 @@ export function useSignUpForm() {
     }
 
     fetchDistricts()
-  }, [toast, districtsFetched])
+  }, [toast, districtsFetched, methods])
 
   const onGenerateOTP = async (
     email: string,
@@ -118,11 +121,15 @@ export function useSignUpForm() {
           throw new Error('User ID is missing after sign up.')
         }
 
+        if (!values.district) {
+          throw new Error('District is required.')
+        }
+
         const registered = await onCompleteUserRegistration(
           values.fullname,
           signUp.createdUserId,
           values.type,
-          values.district,
+          values.district
         )
 
         if (registered?.status !== 200 || !registered.user) {

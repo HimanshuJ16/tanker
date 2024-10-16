@@ -13,7 +13,7 @@ export type UserRegistrationProps = {
 
 export const UserRegistrationSchema: ZodType<UserRegistrationProps> = z
   .object({
-    district: z.string(), // Add this line
+    district: z.string().min(1, 'Please select a district'), // Add this line
     type: z.string().min(1),
     fullname: z
       .string()
