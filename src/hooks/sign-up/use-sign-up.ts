@@ -28,7 +28,7 @@ export function useSignUpForm() {
 
   useEffect(() => {
     const fetchDistricts = async () => {
-      if (districtsFetched) return; // Prevent multiple fetches
+      if (districtsFetched) return;
 
       setLoading(true);
       try {
@@ -43,7 +43,7 @@ export function useSignUpForm() {
         setDistricts(data)
         setDistrictsFetched(true)
         if (data.length > 0) {
-          methods.setValue('district', data[0]) // Set default district
+          methods.setValue('district', data[0])
         }
       } catch (error) {
         console.error('Failed to fetch districts:', error)

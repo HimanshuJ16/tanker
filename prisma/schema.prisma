@@ -10,6 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Circle {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  se             Se[]
+  xen            Xen[]  
+  aen            Aen[]
+  jen            Jen[]
+  users          User[]
+}
+
 model User {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   fullname       String
@@ -17,6 +29,9 @@ model User {
   email          String
   type           String
   district       String
+  designation    String   @default("user")  //user, se, xen, aen, jen
+  circleId       String?  @db.Uuid
+  circle         Circle?    @relation(fields: [circleId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   vehicles       Vehicle[]
@@ -27,6 +42,51 @@ model User {
   bookings       Booking[]
 
   @@unique([email, district])
+}
+
+model Se {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  xen            Xen[]
+}
+
+model Xen {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  seId           String?  @db.Uuid
+  se             Se?      @relation(fields: [seId], references: [id], onDelete: Cascade)             
+  aen            Aen[]
+}
+
+model Aen {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  xenId          String?  @db.Uuid
+  xen            Xen?     @relation(fields: [xenId], references: [id], onDelete: Cascade)
+  jen            Jen[]
+}
+
+model Jen {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  aenId          String?  @db.Uuid
+  aen            Aen?     @relation(fields: [aenId], references: [id], onDelete: Cascade)
 }
 
 model Customer {
