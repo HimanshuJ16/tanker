@@ -15,7 +15,7 @@ model Circle {
   name           String   @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  se             Se[]
+  se             Se?
   xen            Xen[]  
   aen            Aen[]
   jen            Jen[]
@@ -31,7 +31,7 @@ model User {
   district       String
   designation    String   @default("user")  //user, se, xen, aen, jen
   circleId       String?  @db.Uuid
-  circle         Circle?    @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  circle         Circle?  @relation(fields: [circleId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   vehicles       Vehicle[]
@@ -46,47 +46,59 @@ model User {
 
 model Se {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @unique
+  name           String
+  district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  circleId       String   @db.Uuid
+  circleId       String   @unique @db.Uuid
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
   xen            Xen[]
+
+  @@unique([district])
 }
 
 model Xen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @unique
+  name           String
+  district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   circleId       String   @db.Uuid
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  seId           String?  @db.Uuid
-  se             Se?      @relation(fields: [seId], references: [id], onDelete: Cascade)             
+  seId           String   @db.Uuid
+  se             Se       @relation(fields: [seId], references: [id], onDelete: Cascade)             
   aen            Aen[]
+
+  @@unique([name, district])
 }
 
 model Aen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @unique
+  name           String
+  district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   circleId       String   @db.Uuid
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  xenId          String?  @db.Uuid
-  xen            Xen?     @relation(fields: [xenId], references: [id], onDelete: Cascade)
+  xenId          String   @db.Uuid
+  xen            Xen      @relation(fields: [xenId], references: [id], onDelete: Cascade)
   jen            Jen[]
+
+  @@unique([name, district])
 }
 
 model Jen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @unique
+  name           String
+  district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   circleId       String   @db.Uuid
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
-  aenId          String?  @db.Uuid
-  aen            Aen?     @relation(fields: [aenId], references: [id], onDelete: Cascade)
+  aenId          String   @db.Uuid
+  aen            Aen      @relation(fields: [aenId], references: [id], onDelete: Cascade)
+
+  @@unique([name, district])
 }
 
 model Customer {

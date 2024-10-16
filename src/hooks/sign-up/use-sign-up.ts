@@ -22,6 +22,7 @@ export function useSignUpForm() {
     defaultValues: {
       type: 'owner',
       district: '',
+      designation: 'user',
     },
     mode: 'onChange',
   })
@@ -146,7 +147,8 @@ export function useSignUpForm() {
           signUp.createdUserId,
           values.email,
           values.type,
-          values.district
+          values.district,
+          values.designation
         )
 
         if (registered?.status !== 200 || !registered.user) {

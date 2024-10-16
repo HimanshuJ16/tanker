@@ -2,6 +2,7 @@ import { ZodType, z } from 'zod'
 
 export type UserRegistrationProps = {
   district: string
+  designation: string
   type: string
   fullname: string
   email: string
@@ -14,6 +15,7 @@ export type UserRegistrationProps = {
 export const UserRegistrationSchema: ZodType<UserRegistrationProps> = z
   .object({
     district: z.string().min(1, 'Please select a district'), // Add this line
+    designation: z.string().min(1, 'Please select a designation'),
     type: z.string().min(1),
     fullname: z
       .string()

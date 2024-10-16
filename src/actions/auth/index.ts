@@ -8,22 +8,22 @@ export async function onCompleteUserRegistration(
   clerkId: string,
   email: string,
   type: string,
-  district: string
+  district: string,
+  designation: string
 ) {
   try {
-    // First, find the Circle for the given district
+    // Find or create the Circle for the given district
     let circle = await client.circle.findFirst({
       where: { name: district },
     })
 
-    // If the circle doesn't exist, create it
     if (!circle) {
       circle = await client.circle.create({
         data: { name: district },
       })
     }
 
-    // Now create the user and associate it with the circle
+    // Create the user
     const user = await client.user.create({
       data: {
         fullname,
@@ -31,11 +31,61 @@ export async function onCompleteUserRegistration(
         email,
         type,
         district,
+        designation,
         circle: {
           connect: { id: circle.id },
         },
       },
     })
+
+    // Handle specific designations
+    switch (designation) {
+      case 'se':
+        await client.se.create({
+          data: {
+            name: fullname,
+            district,
+            circle: { connect: { id: circle.id } },
+          },
+        })
+        break
+      case 'xen':
+        const se = await client.se.findFirst({ where: { district } })
+        if (!se) throw new Error('No SE found for this district')
+        await client.xen.create({
+          data: {
+            name: fullname,
+            district,
+            circle: { connect: { id: circle.id } },
+            se: { connect: { id: se.id } },
+          },
+        })
+        break
+      case 'aen':
+        const xen = await client.xen.findFirst({ where: { district } })
+        if (!xen) throw new Error('No XEN found for this district')
+        await client.aen.create({
+          data: {
+            name: fullname,
+            district,
+            circle: { connect: { id: circle.id } },
+            xen: { connect: { id: xen.id } },
+          },
+        })
+        break
+      case 'jen':
+        const aen = await client.aen.findFirst({ where: { district } })
+        if (!aen) throw new Error('No AEN found for this district')
+        await client.jen.create({
+          data: {
+            name: fullname,
+            district,
+            circle: { connect: { id: circle.id } },
+            aen: { connect: { id: aen.id } },
+          },
+        })
+        break
+    }
 
     return {
       status: 200,
@@ -44,7 +94,6 @@ export async function onCompleteUserRegistration(
   } catch (error) {
     console.error('Error creating user:', error)
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // The .code property can be accessed in a type-safe manner
       if (error.code === 'P2002') {
         return {
           status: 400,
