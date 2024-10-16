@@ -13,7 +13,8 @@ datasource db {
 model User {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   fullname       String
-  clerkId        String   @unique
+  clerkId        String
+  email          String
   type           String
   district       String
   createdAt      DateTime @default(now())
@@ -25,7 +26,7 @@ model User {
   reports        Report[]
   bookings       Booking[]
 
-  @@unique([clerkId, district])
+  @@unique([email, district])
 }
 
 model Customer {

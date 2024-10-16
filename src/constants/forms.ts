@@ -19,7 +19,7 @@ export const USER_REGISTRATION_FORM: UserRegistrationProps[] = [
   {
     id: '2',
     inputType: 'select',
-    placeholder: 'Select your district',
+    placeholder: 'District',
     name: 'district',
     type: 'select',
   },

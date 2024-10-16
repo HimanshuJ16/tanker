@@ -66,6 +66,7 @@ export function useSignUpForm() {
   const onGenerateOTP = async (
     email: string,
     password: string,
+    district: string,
     onNext: React.Dispatch<React.SetStateAction<number>>
   ) => {
     if (!isLoaded) {
@@ -78,6 +79,21 @@ export function useSignUpForm() {
     }
 
     try {
+      const userExists = await fetch('/api/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, district }),
+      }).then(res => res.json())
+
+      if (userExists.exists) {
+        toast({
+          title: 'Error',
+          description: 'An account with this email already exists in the selected district.',
+          variant: 'destructive',
+        })
+        return
+      }
+
       await signUp.create({
         emailAddress: email,
         password: password,
@@ -128,6 +144,7 @@ export function useSignUpForm() {
         const registered = await onCompleteUserRegistration(
           values.fullname,
           signUp.createdUserId,
+          values.email,
           values.type,
           values.district
         )

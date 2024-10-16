@@ -50,6 +50,7 @@ const ButtonHandler = () => {
                 onGenerateOTP(
                   getValues('email'),
                   getValues('password'),
+                  getValues('district'),
                   setCurrentStep
                 ),
             })}

@@ -5,6 +5,7 @@ import { client } from '@/lib/prisma'
 export async function onCompleteUserRegistration(
   fullname: string,
   clerkId: string,
+  email: string,
   type: string,
   district: string
 ) {
@@ -13,6 +14,7 @@ export async function onCompleteUserRegistration(
       data: {
         fullname,
         clerkId,
+        email,
         type,
         district,
       },
