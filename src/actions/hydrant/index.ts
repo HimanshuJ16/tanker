@@ -182,7 +182,7 @@ export const updateHydrant = async (hydrantId: string, data: HydrantData) => {
     const vendorInCircle = contractor.circle.vendors.some(v => v.id === hydrant.vendor?.id)
     if (!vendorInCircle) throw new Error('Hydrant does not belong to a vendor in your circle')
 
-    let updateData: any = {
+    const updateData: any = {
       name: data.name,
       address: data.address,
       contactNumber: data.contactNumber,

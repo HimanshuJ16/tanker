@@ -180,7 +180,7 @@ export const updateVehicle = async (vehicleId: string, data: VehicleData) => {
     const vendorInCircle = contractor.circle.vendors.some(v => v.id === vehicle.vendor?.id)
     if (!vendorInCircle) throw new Error('Vehicle does not belong to a vendor in your circle')
 
-    let updateData: any = {
+    const updateData: any = {
       name: data.name,
       address: data.address,
       contactNumber: data.contactNumber,

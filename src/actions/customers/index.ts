@@ -217,7 +217,7 @@ export const updateCustomer = async (customerId: string, data: CustomerData) => 
       throw new Error('Customer does not belong to a vendor in your circle')
     }
 
-    let updateData: any = {
+    const updateData: any = {
       name: data.name,
       email: data.email,
       contactNumber: data.contactNumber,
