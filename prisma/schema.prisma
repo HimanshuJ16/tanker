@@ -16,50 +16,58 @@ model Circle {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   se             Se?
-  xen            Xen[]  
-  aen            Aen[]
-  jen            Jen[]
+  xens           Xen[]  
+  aens           Aen[]
+  jens           Jen[]
+  contractors    Contractor[]
+  vendors        Vendor[]
   users          User[]
 }
 
 model User {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   fullname       String
-  clerkId        String
-  email          String
-  type           String
+  username       String   @unique
+  password       String
+  email          String?
+  contactNumber  String?
   district       String
-  designation    String   @default("user")  //user, se, xen, aen, jen
+  role           String
   circleId       String?  @db.Uuid
   circle         Circle?  @relation(fields: [circleId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  vehicles       Vehicle[]
-  drivers        Driver[]
-  customers      Customer[]
-  trips          Trip[]
-  reports        Report[]
-  bookings       Booking[]
+}
 
-  @@unique([email, district])
+model Contractor {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  username       String   @unique
+  district       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @unique @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  jen            Jen[]
+  reports        Report[]  
 }
 
 model Se {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
+  username       String   @unique
   district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   circleId       String   @unique @db.Uuid
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
   xen            Xen[]
-
-  @@unique([district])
 }
 
 model Xen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
+  username       String   @unique
   district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -68,13 +76,12 @@ model Xen {
   seId           String   @db.Uuid
   se             Se       @relation(fields: [seId], references: [id], onDelete: Cascade)             
   aen            Aen[]
-
-  @@unique([name, district])
 }
 
 model Aen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
+  username       String   @unique  
   district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -83,13 +90,12 @@ model Aen {
   xenId          String   @db.Uuid
   xen            Xen      @relation(fields: [xenId], references: [id], onDelete: Cascade)
   jen            Jen[]
-
-  @@unique([name, district])
 }
 
 model Jen {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
+  username       String   @unique
   district       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -97,53 +103,121 @@ model Jen {
   circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
   aenId          String   @db.Uuid
   aen            Aen      @relation(fields: [aenId], references: [id], onDelete: Cascade)
+  contractorId   String   @db.Uuid
+  contractor     Contractor   @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  vendors        Vendor[]
+  customers      Customer[]
+  vehicles       Vehicle[]
+  hydrants       Hydrant[]
+  destinations   Destination[]
+  bookings       Booking[]
+  reports        Report[]
+}
 
-  @@unique([name, district])
+model Vendor {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  username       String   @unique
+  district       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  circleId       String   @db.Uuid
+  circle         Circle   @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  jenId          String   @db.Uuid
+  jen            Jen      @relation(fields: [jenId], references: [id], onDelete: Cascade)
+  customers      Customer[]
+  vehicles       Vehicle[]
+  hydrants       Hydrant[]
+  destinations   Destination[]
+  bookings       Booking[]
 }
 
 model Customer {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
-  email          String?  @unique
+  email          String?
   contactNumber  String?
   address        String?
-  approved       Boolean  @default(true)
-  active         Boolean  @default(true)
+  type           String   //government or private
+  approved       Boolean  
+  active         Boolean  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  userId         String?  @db.Uuid
-  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trips          Trip[]
-  bookings       Booking[]
+  vendorId       String?  @db.Uuid
+  vendor         Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  jenId          String?  @db.Uuid
+  jen            Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
 }
 
 model Vehicle {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  address        String
+  contactNumber  String
+  email          String
   vehicleNumber  String   @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  vendorId       String?  @db.Uuid
+  vendor         Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  jenId          String?  @db.Uuid
+  jen            Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
   trips          Trip[]
-  driver         Driver?  @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  driverId       String?  @db.Uuid
-  userId         String?  @db.Uuid
-  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   reports        Report[]
-  bookings       Booking[]
 }
 
-model Driver {
+model Hydrant {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName      String
-  lastName       String
-  licenseNumber  String   @unique
+  name           String
+  address        String
   contactNumber  String
-  status         String?  @default("active")   // e.g., "active", "on_leave", "terminated"
+  email          String
+  latitude       Float
+  longitude      Float
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  userId         String?  @db.Uuid
-  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vehicles       Vehicle[]
-  trips          Trip[]
+  vendorId       String?  @db.Uuid
+  vendor         Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  jenId          String?  @db.Uuid
+  jen            Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
+}
+
+model Destination {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  address        String
+  contactNumber  String
+  email          String
+  latitude       Float
+  longitude      Float
+  agree          Boolean  
+  active         Boolean  
+  approved       Boolean  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  vendorId       String?  @db.Uuid
+  vendor         Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  jenId          String?  @db.Uuid
+  jen            Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type             String   //normal or emergency
+  bookingType      String   //scheduled or regular
+  approved         Boolean  @default(false)
+  customerName     String
+  customerNumber   String
+  vehicleNumber    String
+  hydrantName      String
+  destinationName  String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  vendorId         String?  @db.Uuid
+  vendor           Vendor?  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  jenId            String?  @db.Uuid
+  jen              Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
+  trip             Trip[]
 }
 
 model Trip {
@@ -152,20 +226,15 @@ model Trip {
   endTime        DateTime?
   distance       Float?
   status         String   // e.g., "in_progress", "completed", "cancelled"
+  photo          String?
+  video          String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   vehicleId      String   @db.Uuid
-  driver         Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
-  driverId       String   @db.Uuid
-  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId     String   @db.Uuid
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String   @db.Uuid
-  locations      GpsLocation[]
-  reports        Report[]
-  booking        Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   bookingId      String?  @db.Uuid
+  booking        Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  gpsLocations   GpsLocation[]
 }
 
 model GpsLocation {
@@ -184,32 +253,15 @@ model GpsLocation {
 model Report {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   reportType       String   // e.g., "daily", "weekly", "monthly"
-  totalVehicles    Int
+  vehicleNumber    String
   totalDistance    Float
   totalTrips       Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   vehicle          Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   vehicleId        String   @db.Uuid
-  trips            Trip[]
-  generatedBy      User     @relation(fields: [generatedByUserId], references: [id], onDelete: Cascade)
-  generatedByUserId String  @db.Uuid
-}
-
-model Booking {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  status           String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  customer         Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId       String   @db.Uuid
-  customerName     String
-  customerAddress  String
-  contactNumber    String
-  vehicle          Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  vehicleId        String   @db.Uuid
-  vehicleNumber    String
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String   @db.Uuid
-  trips            Trip[]
+  jenId            String?  @db.Uuid
+  jen              Jen?     @relation(fields: [jenId], references: [id], onDelete: Cascade)
+  contractorId     String?  @db.Uuid
+  contractor       Contractor? @relation(fields: [contractorId], references: [id], onDelete: Cascade)
 }

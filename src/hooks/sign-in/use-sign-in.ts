@@ -1,13 +1,11 @@
 import { useToast } from '@/hooks/use-toast'
 import { UserLoginProps, UserLoginSchema } from '@/schemas/auth.schema'
-import { useSignIn } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-export const useSignInForm = () => {
-  const { isLoaded, setActive, signIn } = useSignIn()
+export function useSignInForm() {
   const [loading, setLoading] = useState<boolean>(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -17,50 +15,33 @@ export const useSignInForm = () => {
   })
 
   const onHandleSubmit = methods.handleSubmit(async (values: UserLoginProps) => {
-    if (!isLoaded || !signIn) {
-      toast({
-        title: 'Error',
-        description: 'Authentication system is not ready',
-      })
-      return
-    }
-
     setLoading(true)
     try {
-      const result = await signIn.create({
-        identifier: values.email,
-        password: values.password,
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
       })
 
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId })
+      if (response.ok) {
+        const data = await response.json()
         toast({
           title: 'Success',
           description: 'Welcome back!',
         })
-        router.push('/dashboard')
+        // Redirect to the user-specific dashboard
+        router.push(`/${data.district}/${data.role}/${data.id}/dashboard`)
       } else {
-        throw new Error('Authentication failed')
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Authentication failed')
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: 'Error',
-          description: error.message || 'An unexpected error occurred',
-        })
-      } else if (typeof error === 'object' && error !== null && 'errors' in error) {
-        const clerkError = error as { errors: Array<{ code: string, message: string }> }
-        const errorMessage = clerkError.errors[0]?.message || 'An unexpected error occurred'
-        toast({
-          title: 'Error',
-          description: errorMessage,
-        })
-      } else {
-        toast({
-          title: 'Error',
-          description: 'An unexpected error occurred',
-        })
-      }
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      })
     } finally {
       setLoading(false)
     }

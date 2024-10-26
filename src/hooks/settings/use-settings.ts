@@ -12,6 +12,7 @@ export const useChangePassword = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<ChangePasswordProps>({
@@ -24,7 +25,7 @@ export const useChangePassword = () => {
   const onChangePassword = handleSubmit(async (values) => {
     try {
       setLoading(true)
-      const result = await onUpdatePassword(values.password)
+      const result = await onUpdatePassword(values.oldPassword, values.newPassword)
       if (result.status === 200) {
         reset()
         toast({ title: 'Success', description: result.message })
@@ -41,6 +42,7 @@ export const useChangePassword = () => {
 
   return {
     register,
+    control,
     errors,
     onChangePassword,
     loading,
@@ -58,7 +60,7 @@ export const useDeleteUser = () => {
       const result = await onDeleteUser()
       if (result.status === 200) {
         toast({ title: 'Success', description: result.message })
-        router.push('/')
+        router.push('/auth/sign-in')
       } else {
         toast({ title: 'Error', description: result.message })
       }

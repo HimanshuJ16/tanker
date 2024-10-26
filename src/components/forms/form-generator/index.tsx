@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ErrorMessage } from '@hookform/error-message'
 import React from 'react'
-import { FieldErrors, FieldValues, UseFormRegister } from 'react-hook-form'
+import { FieldErrors, FieldValues, UseFormRegister, Controller, Control } from 'react-hook-form'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -14,6 +14,7 @@ type Props = {
   label?: string
   placeholder: string
   register: UseFormRegister<any>
+  control: Control<any>
   name: string
   errors: FieldErrors<FieldValues>
   lines?: number
@@ -29,6 +30,7 @@ const FormGenerator = ({
   placeholder,
   defaultValue,
   register,
+  control,
   type,
   form,
   label,
@@ -70,22 +72,28 @@ const FormGenerator = ({
           {loading ? (
             <Skeleton className="h-10 w-full" />
           ) : (
-            <Select {...register(name)}>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-              <SelectContent>
-                {options && options.length > 0 ? (
-                  options.map((option) => (
-                    <SelectItem key={option.id} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-options">No options available</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <Controller
+              name={name}
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={placeholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {options && options.length > 0 ? (
+                      options.map((option) => (
+                        <SelectItem key={option.id} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-options">No options available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           )}
           <ErrorMessage
             errors={errors}

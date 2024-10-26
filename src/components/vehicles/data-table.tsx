@@ -1,4 +1,3 @@
-// components/ui/data-table.tsx
 "use client"
 
 import * as React from "react"
@@ -37,9 +36,9 @@ import { Input } from "@/components/ui/input"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  onAdd: () => void
-  onEdit: (row: TData) => void
-  onDelete: (row: TData) => void
+  onAdd?: () => void
+  onEdit?: (row: TData) => void
+  onDelete?: (row: TData) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -84,9 +83,11 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-        <Button onClick={onAdd} className="ml-auto">
-          Add Vehicle
-        </Button>
+        {onAdd && (
+          <Button onClick={onAdd} className="ml-auto">
+            Add Vehicle
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-2">
@@ -144,14 +145,20 @@ export function DataTable<TData, TValue>({
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Button variant="outline" className="mr-2" onClick={() => onEdit(row.original)}>
-                      Edit
-                    </Button>
-                    <Button variant="destructive" onClick={() => onDelete(row.original)}>
-                      Delete
-                    </Button>
-                  </TableCell>
+                  {(onEdit || onDelete) && (
+                    <TableCell>
+                      {onEdit && (
+                        <Button variant="outline" className="mr-2" onClick={() => onEdit(row.original)}>
+                          Edit
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button variant="destructive" onClick={() => onDelete(row.original)}>
+                          Delete
+                        </Button>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (

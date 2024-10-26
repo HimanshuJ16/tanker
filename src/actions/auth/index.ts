@@ -2,19 +2,29 @@
 
 import { client } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 export async function onCompleteUserRegistration(
   fullname: string,
-  clerkId: string,
-  email: string,
-  type: string,
+  username: string,
+  password: string,
+  contactNumber: string | null,
+  email: string | null,
   district: string,
-  designation: string
+  role: string,
+  parentId?: string,
+  contractorId?: string
 ) {
   try {
-    // Find or create the Circle for the given district
+    const hashedPassword = await bcrypt.hash(password, 10)
+
     let circle = await client.circle.findFirst({
-      where: { name: district },
+      where: {
+        name: {
+          equals: district,
+          mode: 'insensitive'
+        }
+      },
     })
 
     if (!circle) {
@@ -23,27 +33,27 @@ export async function onCompleteUserRegistration(
       })
     }
 
-    // Create the user
     const user = await client.user.create({
       data: {
         fullname,
-        clerkId,
+        username,
+        password: hashedPassword,
+        contactNumber,
         email,
-        type,
         district,
-        designation,
+        role,
         circle: {
           connect: { id: circle.id },
         },
-      },
+      }
     })
 
-    // Handle specific designations
-    switch (designation) {
+    switch (role) {
       case 'se':
         await client.se.create({
           data: {
             name: fullname,
+            username,
             district,
             circle: { connect: { id: circle.id } },
           },
@@ -55,6 +65,7 @@ export async function onCompleteUserRegistration(
         await client.xen.create({
           data: {
             name: fullname,
+            username,
             district,
             circle: { connect: { id: circle.id } },
             se: { connect: { id: se.id } },
@@ -62,26 +73,89 @@ export async function onCompleteUserRegistration(
         })
         break
       case 'aen':
-        const xen = await client.xen.findFirst({ where: { district } })
-        if (!xen) throw new Error('No XEN found for this district')
+        if (!parentId) throw new Error('Parent XEN ID is required for AEN creation')
         await client.aen.create({
           data: {
             name: fullname,
+            username,
             district,
             circle: { connect: { id: circle.id } },
-            xen: { connect: { id: xen.id } },
+            xen: { connect: { id: parentId } },
           },
         })
         break
       case 'jen':
-        const aen = await client.aen.findFirst({ where: { district } })
-        if (!aen) throw new Error('No AEN found for this district')
+        if (!parentId) throw new Error('Parent AEN ID is required for JEN creation')
+        let contractor
+        if (contractorId) {
+          const user = await client.user.findUnique({
+            where: { id: contractorId },
+            select: {
+              circle: { select: { id: true } },
+            },
+          })
+          if (!user || !user.circle) throw new Error('User or User\'s Circle not found')
+  
+          const circle = user.circle
+  
+          contractor = await client.circle.findUnique({
+            where: { id: circle.id },
+            select: {
+              contractors: { select: { id: true } },
+            },
+          })
+  
+          if (!contractor || contractor.contractors.length === 0) throw new Error('Contractor not found')
+  
+          contractor = contractor.contractors[0]
+  
+        } else {
+          contractor = await client.contractor.findFirst({
+            where: { circleId: circle.id },
+          })
+
+          if (!contractor) {
+            contractor = await client.contractor.create({
+              data: {
+                name: 'Default Contractor',
+                username: `default_contractor_${circle.id}`,
+                district,
+                circle: { connect: { id: circle.id } },
+              },
+            })
+          }
+        }
+  
         await client.jen.create({
           data: {
             name: fullname,
+            username,
             district,
             circle: { connect: { id: circle.id } },
-            aen: { connect: { id: aen.id } },
+            aen: { connect: { id: parentId } },
+            contractor: { connect: { id: contractor.id } },
+          },
+        })
+        break
+      case 'vendor':
+        if (!parentId) throw new Error('Parent JEN ID is required for Vendor creation')
+        await client.vendor.create({
+          data: {
+            name: fullname,
+            username,
+            district,
+            circle: { connect: { id: circle.id } },
+            jen: { connect: { id: parentId } },
+          },
+        })
+        break
+      case 'contractor':
+        await client.contractor.create({
+          data: {
+            name: fullname,
+            username,
+            district,
+            circle: { connect: { id: circle.id } },
           },
         })
         break
@@ -97,7 +171,7 @@ export async function onCompleteUserRegistration(
       if (error.code === 'P2002') {
         return {
           status: 400,
-          error: 'A user with this email already exists in the selected district.',
+          error: 'A user with this username already exists.',
         }
       }
     }
@@ -105,5 +179,108 @@ export async function onCompleteUserRegistration(
       status: 500,
       error: 'Failed to create user',
     }
+  }
+}
+
+export async function fetchParentRoles(district: string, role: string) {
+  try {
+    console.log(`Fetching parent roles for district: ${district}, role: ${role}`);
+
+    const circle = await client.circle.findFirst({
+      where: {
+        name: {
+          equals: district,
+          mode: 'insensitive'
+        }
+      },
+    })
+
+    if (!circle) {
+      console.error(`Circle not found for district: ${district}`);
+      const allCircles = await client.circle.findMany({
+        select: { name: true }
+      });
+      console.log('Available circles:', allCircles.map(c => c.name));
+      throw new Error(`Circle not found for the given district: ${district}`)
+    }
+
+    console.log(`Circle found: ${circle.id}`);
+
+    let parentRoles: string | any[] = [];
+
+    switch (role) {
+      case 'aen':
+        parentRoles = await client.xen.findMany({
+          where: { circleId: circle.id },
+          select: { id: true, username: true, name: true },
+        })
+        break;
+      case 'jen':
+        parentRoles = await client.aen.findMany({
+          where: { circleId: circle.id },
+          select: { id: true, username: true, name: true },
+        })
+        break;
+      case 'vendor':
+        parentRoles = await client.jen.findMany({
+          where: { circleId: circle.id },
+          select: { id: true, username: true, name: true },
+        })
+        break;
+      default:
+        console.log(`No parent roles for role: ${role}`);
+    }
+
+    console.log(`Found ${parentRoles.length} parent roles:`, parentRoles);
+    return parentRoles;
+  } catch (error) {
+    console.error('Error fetching parent roles:', error)
+    throw error
+  }
+}
+
+export async function fetchContractorDistrict(contractorId: string) {
+  try {
+    console.log(`Attempting to fetch contractor with ID: ${contractorId}`)
+
+    const contractor = await client.user.findUnique({
+      where: { id: contractorId },
+      select: { 
+        id: true,
+        district: true, 
+        circle: { 
+          select: { 
+            id: true,
+            name: true 
+          } 
+        } 
+      },
+    })
+
+    if (!contractor) {
+      console.error(`Contractor not found for ID: ${contractorId}`)
+      
+      // Log all contractors for debugging
+      const allContractors = await client.contractor.findMany({
+        select: { id: true, username: true, district: true }
+      })
+      console.log('All contractors:', JSON.stringify(allContractors, null, 2))
+
+      throw new Error(`Contractor not found for ID: ${contractorId}`)
+    }
+
+    console.log(`Contractor found:`, JSON.stringify(contractor, null, 2))
+
+    // Use circle name as district if contractor's district is not set
+    const district = contractor.district || contractor.circle?.name || ''
+
+    if (!district) {
+      throw new Error(`No district found for contractor ID: ${contractorId}`)
+    }
+
+    return district
+  } catch (error) {
+    console.error('Error in fetchContractorDistrict:', error)
+    throw error
   }
 }

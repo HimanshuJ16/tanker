@@ -3,29 +3,55 @@
 import { useToast } from '@/hooks/use-toast'
 import { UserRegistrationProps, UserRegistrationSchema } from '@/schemas/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSignUp } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { onCompleteUserRegistration } from '@/actions/auth'
+import { onCompleteUserRegistration, fetchParentRoles, fetchContractorDistrict } from '@/actions/auth'
 
-export function useSignUpForm() {
+export function useSignUpForm(contractorId?: string) {
   const { toast } = useToast()
   const [loading, setLoading] = useState<boolean>(false)
   const [districts, setDistricts] = useState<string[]>([])
   const [districtsFetched, setDistrictsFetched] = useState<boolean>(false)
-  const { signUp, isLoaded, setActive } = useSignUp()
+  const [parentRoles, setParentRoles] = useState<{ id: string; username: string; name: string }[]>([])
   const router = useRouter()
   
   const methods = useForm<UserRegistrationProps>({
     resolver: zodResolver(UserRegistrationSchema),
     defaultValues: {
-      type: 'owner',
       district: '',
-      designation: 'user',
+      role: '',
+      parentId: '',
     },
     mode: 'onChange',
   })
+
+  const fetchParentRolesData = useCallback(async (district: string, role: string) => {
+    if (district && ['aen', 'jen', 'vendor'].includes(role)) {
+      try {
+        const parentRolesData = await fetchParentRoles(district, role)
+        console.log('Fetched parent roles:', parentRolesData)
+        setParentRoles(parentRolesData)
+        if (parentRolesData.length > 0) {
+          methods.setValue('parentId', parentRolesData[0].id)
+        } else {
+          methods.setValue('parentId', '')
+        }
+      } catch (error) {
+        console.error('Failed to fetch parent roles:', error)
+        toast({
+          title: 'Error',
+          description: 'Failed to load parent roles. Please try again later.',
+          variant: 'destructive',
+        })
+      } finally {
+        setLoading(false)
+      }
+    } else {
+      setParentRoles([])
+      methods.setValue('parentId', '')
+    }
+  }, [methods, toast])
 
   useEffect(() => {
     const fetchDistricts = async () => {
@@ -33,27 +59,36 @@ export function useSignUpForm() {
 
       setLoading(true);
       try {
-        const response = await fetch('/api/districts')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+        if (contractorId) {
+          console.log(`Fetching district for contractor ID: ${contractorId}`)
+          const district = await fetchContractorDistrict(contractorId)
+          if (district) {
+            console.log(`District fetched: ${district}`)
+            setDistricts([district])
+            methods.setValue('district', district)
+          } else {
+            throw new Error('Failed to fetch contractor district')
+          }
+        } else {
+          const response = await fetch('/api/districts')
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+          const data = await response.json()
+          if (!Array.isArray(data)) {
+            throw new Error('Unexpected data format')
+          }
+          setDistricts(data)
+          if (data.length > 0) {
+            methods.setValue('district', data[0])
+          }
         }
-        const data = await response.json()
-        if (!Array.isArray(data)) {
-          throw new Error('Unexpected data format')
-        }
-        setDistricts(data)
         setDistrictsFetched(true)
-        if (data.length > 0) {
-          methods.setValue('district', data[0])
-        }
       } catch (error) {
         console.error('Failed to fetch districts:', error)
-        if (error instanceof Error) {
-          console.error('Error details:', error.message)
-        }
         toast({
           title: 'Error',
-          description: 'Failed to load districts. Please try again later.',
+          description: error instanceof Error ? error.message : 'Failed to load districts. Please try again later.',
           variant: 'destructive',
         })
       } finally {
@@ -62,107 +97,44 @@ export function useSignUpForm() {
     }
 
     fetchDistricts()
-  }, [toast, districtsFetched, methods])
+  }, [toast, districtsFetched, methods, contractorId])
 
-  const onGenerateOTP = async (
-    email: string,
-    password: string,
-    district: string,
-    onNext: React.Dispatch<React.SetStateAction<number>>
-  ) => {
-    if (!isLoaded) {
-      toast({
-        title: 'Error',
-        description: 'Authentication system is not ready.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    try {
-      const userExists = await fetch('/api/check-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, district }),
-      }).then(res => res.json())
-
-      if (userExists.exists) {
-        toast({
-          title: 'Error',
-          description: 'An account with this email already exists in the selected district.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      await signUp.create({
-        emailAddress: email,
-        password: password,
-      })
-
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
-
-      onNext((prev) => prev + 1)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      })
-    }
-  }
+  useEffect(() => {
+    const district = methods.watch('district')
+    const role = methods.watch('role')
+    fetchParentRolesData(district, role)
+  }, [methods.watch('district'), methods.watch('role'), fetchParentRolesData])
 
   const onHandleSubmit = methods.handleSubmit(
     async (values: UserRegistrationProps) => {
-      if (!isLoaded) {
-        toast({
-          title: 'Error',
-          description: 'Authentication system is not ready.',
-          variant: 'destructive',
-        })
-        return
-      }
-
       try {
         setLoading(true)
-        const completeSignUp = await signUp.attemptEmailAddressVerification({
-          code: values.otp,
-        })
-
-        if (completeSignUp.status !== 'complete') {
-          throw new Error('Something went wrong during sign up completion.')
-        }
-
-        if (!signUp.createdUserId) {
-          throw new Error('User ID is missing after sign up.')
-        }
-
-        if (!values.district) {
-          throw new Error('District is required.')
-        }
-
+        
         const registered = await onCompleteUserRegistration(
           values.fullname,
-          signUp.createdUserId,
+          values.username,
+          values.password,
+          values.contactNumber,
           values.email,
-          values.type,
-          values.district,
-          values.designation
+          values.district.toLowerCase(),
+          values.role,
+          values.parentId,
+          contractorId
         )
 
         if (registered?.status !== 200 || !registered.user) {
-          throw new Error('User registration failed.')
+          throw new Error(`User registration failed. Status: ${registered?.status}`)
         }
 
-        await setActive({
-          session: completeSignUp.createdSessionId,
-        })
-
         setLoading(false)
-        router.push('/dashboard')
+        if (contractorId) {
+          router.push(`/${values.district}/contractor/${contractorId}/dashboard`)
+        } else {
+          router.push(`/${values.district}/${values.role}/${registered.user.id}/dashboard`)
+        }
       } catch (error) {
         setLoading(false)
+        console.error('Registration error:', error)
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
         toast({
           title: 'Error',
@@ -176,8 +148,9 @@ export function useSignUpForm() {
   return {
     methods,
     onHandleSubmit,
-    onGenerateOTP,
     loading,
     districts,
+    parentRoles,
+    fetchParentRolesData,
   }
 }

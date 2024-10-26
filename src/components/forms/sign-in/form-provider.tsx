@@ -9,14 +9,17 @@ type Props = {
   children: React.ReactNode
 }
 
-const SignInFormProvider = ({ children }: Props) => {
+export default function SignInFormProvider({ children }: Props) {
   const { methods, onHandleSubmit, loading } = useSignInForm()
 
   return (
     <AuthContextProvider>
       <FormProvider {...methods}>
         <form
-          onSubmit={onHandleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault()
+            onHandleSubmit()
+          }}
           className="h-full"
         >
           <div className="flex flex-col justify-between gap-3 h-full">
@@ -27,5 +30,3 @@ const SignInFormProvider = ({ children }: Props) => {
     </AuthContextProvider>
   )
 }
-
-export default SignInFormProvider

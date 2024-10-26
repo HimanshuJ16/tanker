@@ -6,6 +6,7 @@ export type UserRegistrationProps = {
   label?: string
   placeholder: string
   name: string
+  condition?: (values: any) => boolean
 }
 
 export const USER_REGISTRATION_FORM: UserRegistrationProps[] = [
@@ -27,32 +28,46 @@ export const USER_REGISTRATION_FORM: UserRegistrationProps[] = [
     id: '3',
     inputType: 'select',
     placeholder: 'Designation',
-    name: 'designation',
+    name: 'role',
     type: 'select',
   },
   {
     id: '4',
+    inputType: 'select',
+    placeholder: 'Select Parent',
+    name: 'parentId',
+    type: 'select',
+  },
+  {
+    id: '5',
+    inputType: 'input',
+    placeholder: 'Username',
+    name: 'username',
+    type: 'text',
+  },
+  {
+    id: '6',
     inputType: 'input',
     placeholder: 'Email',
     name: 'email',
     type: 'email',
   },
   {
-    id: '5',
+    id: '7',
     inputType: 'input',
-    placeholder: 'Confirm Email',
-    name: 'confirmEmail',
-    type: 'email',
+    placeholder: 'Contact Number',
+    name: 'contactNumber',
+    type: 'text',
   },
   {
-    id: '6',
+    id: '8',
     inputType: 'input',
     placeholder: 'Password',
     name: 'password',
     type: 'password',
   },
   {
-    id: '7',
+    id: '9',
     inputType: 'input',
     placeholder: 'Confirm Password',
     name: 'confirmPassword',
@@ -64,9 +79,9 @@ export const USER_LOGIN_FORM: UserRegistrationProps[] = [
   {
     id: '1',
     inputType: 'input',
-    placeholder: 'Enter your email',
-    name: 'email',
-    type: 'email',
+    placeholder: 'Enter your username',
+    name: 'username',
+    type: 'text',
   },
   {
     id: '2',

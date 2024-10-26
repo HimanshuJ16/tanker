@@ -1,8 +1,8 @@
-// hooks/use-customers.ts
 import { useState, useEffect } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from '@/actions/customers'
 import { Customer } from '@prisma/client'
+import { CustomerSchemaType } from '@/schemas/customer.schema'
 
 export const useCustomers = () => {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -22,26 +22,26 @@ export const useCustomers = () => {
     fetchCustomers()
   }, [])
 
-  const onAddCustomer = async (data: { name: string; email: string; contactNumber: string; address: string }) => {
+  const onAddCustomer = async (data: CustomerSchemaType) => {
     setLoading(true)
     const result = await addCustomer(data)
     if (result.status === 200) {
       toast({ title: 'Success', description: result.message })
       await fetchCustomers()
     } else {
-      toast({ title: 'Error', description: result.message })
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
     }
     setLoading(false)
   }
 
-  const onUpdateCustomer = async (id: string, data: { name: string; email: string; contactNumber: string; address: string; approved: boolean; active: boolean }) => {
+  const onUpdateCustomer = async (id: string, data: CustomerSchemaType) => {
     setLoading(true)
     const result = await updateCustomer(id, data)
     if (result.status === 200) {
       toast({ title: 'Success', description: result.message })
       await fetchCustomers()
     } else {
-      toast({ title: 'Error', description: result.message })
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
     }
     setLoading(false)
   }
@@ -53,7 +53,7 @@ export const useCustomers = () => {
       toast({ title: 'Success', description: result.message })
       await fetchCustomers()
     } else {
-      toast({ title: 'Error', description: result.message })
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
     }
     setLoading(false)
   }

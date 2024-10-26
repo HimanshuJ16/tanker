@@ -2,8 +2,6 @@
 import useSideBar from '@/context/use-sidebar'
 import React from 'react'
 
-// type Props = {}
-
 const BreadCrumb = () => {
   const {
     page,
@@ -15,13 +13,15 @@ const BreadCrumb = () => {
       </div>
       <p className="text-gray-500 text-sm pt-1">
         {page == 'settings'
-          ? 'Manage your account settings, preferences and integrations'
+          ? 'Manage your account settings'
           : page == 'dashboard'
           ? 'A detailed overview of your metrics, usage, customers and more'
           : page == 'vehicle'
           ? 'Add, view and edit all your vehicles'
-          : page == 'driver'
-          ? 'Add, view and edit all your drivers'
+          : page == 'hydrant'
+          ? 'Add, view and edit all your hydrants'
+          : page == 'destination'
+          ? 'Add, view and edit all your destinations'
           : page == 'customer'
           ? 'Add, view and edit all your customers'
           : page == 'booking'
@@ -30,6 +30,10 @@ const BreadCrumb = () => {
           ? 'Track your vehicles'
           : page == 'report'
           ? 'View and download your reports'
+          : page == 'billings'
+          ? 'View and pay your bills'
+          : page == 'create-account'
+          ? 'Create accounts for desired roles'
           : ''}
       </p>
     </div>

@@ -1,11 +1,10 @@
-
 import SignInFormProvider from '@/components/forms/sign-in/form-provider'
 import LoginForm from '@/components/forms/sign-in/login-form'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import React from 'react'
 
-const SignInPage = () => {
+export default function SignInPage() {
   return (
     <div className="flex-1 py-36 md:px-16 w-full">
       <div className="flex flex-col h-full gap-3">
@@ -17,10 +16,10 @@ const SignInPage = () => {
                 type="submit"
                 className="w-full"
               >
-                Submit
+                Sign In
               </Button>
               <p>
-                Don’t have an account?{' '}
+                Don't have an account?{' '}
                 <Link
                   href="/auth/sign-up"
                   className="font-bold"
@@ -35,5 +34,3 @@ const SignInPage = () => {
     </div>
   )
 }
-
-export default SignInPage

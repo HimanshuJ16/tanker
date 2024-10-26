@@ -1,11 +1,18 @@
 'use client'
+
 import useSideBar from '@/context/use-sidebar'
 import { cn } from '@/lib/utils'
 import React from 'react'
 import MaxMenu from './maximized-menu'
 import { MinMenu } from './minimized-menu'
 
-const SideBar = () => {
+type Props = {
+  userRole: string
+  district: string
+  userId: string
+}
+
+const SideBar = ({ userRole, district, userId }: Props) => {
   const { expand, onExpand, page, onSignOut } = useSideBar()
 
   return (
@@ -23,12 +30,18 @@ const SideBar = () => {
           current={page!}
           onExpand={onExpand}
           onSignOut={onSignOut}
+          userRole={userRole}
+          district={district}
+          userId={userId}
         />
       ) : (
         <MinMenu
           onShrink={onExpand}
           current={page!}
           onSignOut={onSignOut}
+          userRole={userRole}
+          district={district}
+          userId={userId}
         />
       )}
     </div>

@@ -8,7 +8,7 @@ import { Button } from '../ui/button'
 import { Loader } from '../loader'
 
 const ChangePassword = () => {
-  const { register, errors, onChangePassword, loading } = useChangePassword()
+  const { register, errors, onChangePassword, loading, control } = useChangePassword()
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
@@ -26,7 +26,17 @@ const ChangePassword = () => {
           <FormGenerator
             register={register}
             errors={errors}
-            name="password"
+            control={control}
+            name="oldPassword"
+            placeholder="Current Password"
+            type="password"
+            inputType="input"
+          />
+          <FormGenerator
+            register={register}
+            errors={errors}
+            control={control}
+            name="newPassword"
             placeholder="New Password"
             type="password"
             inputType="input"
@@ -34,8 +44,9 @@ const ChangePassword = () => {
           <FormGenerator
             register={register}
             errors={errors}
-            name="confirmPassword"
-            placeholder="Confirm Password"
+            control={control}
+            name="confirmNewPassword"
+            placeholder="Confirm New Password"
             type="password"
             inputType="input"
           />

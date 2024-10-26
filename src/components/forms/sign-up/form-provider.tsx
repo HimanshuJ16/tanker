@@ -7,16 +7,20 @@ import { FormProvider } from 'react-hook-form'
 
 type Props = {
   children: React.ReactNode
+  contractorId?: string
 }
 
-const SignUpFormProvider = ({ children }: Props) => {
-  const { methods, onHandleSubmit, loading } = useSignUpForm()
+export default function SignUpFormProvider({ children, contractorId }: Props) {
+  const { methods, onHandleSubmit, loading } = useSignUpForm(contractorId)
 
   return (
     <AuthContextProvider>
       <FormProvider {...methods}>
         <form
-          onSubmit={onHandleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault()
+            onHandleSubmit()
+          }}
           className="h-full"
         >
           <div className="flex flex-col justify-between gap-3 h-full">
@@ -27,5 +31,3 @@ const SignUpFormProvider = ({ children }: Props) => {
     </AuthContextProvider>
   )
 }
-
-export default SignUpFormProvider
