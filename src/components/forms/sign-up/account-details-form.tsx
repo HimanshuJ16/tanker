@@ -47,12 +47,12 @@ export default function AccountDetailsForm({
 
   return (
     <div className="space-y-6">
-      {!contractorId ? 
+      {!contractorId && (
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Account details</h2>
           <p className="mt-1 text-sm text-gray-600">Enter your email, password, select your district and designation</p>
-        </div> : null
-      }
+        </div>
+      )}
       {USER_REGISTRATION_FORM.map((field) => {
         if (field.name === 'district') {
           return (
@@ -61,7 +61,11 @@ export default function AccountDetailsForm({
               {loading ? (
                 <Skeleton className="h-10 w-full" />
               ) : (
-                <Select onValueChange={(value) => setValue('district', value)} value={district} disabled={!!contractorId}>
+                <Select 
+                  onValueChange={(value) => setValue('district', value)} 
+                  value={district} 
+                  disabled={!!contractorId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a district" />
                   </SelectTrigger>
@@ -80,6 +84,7 @@ export default function AccountDetailsForm({
             </div>
           )
         }
+
         if (field.name === 'role') {
           return (
             <div key={field.id} className="space-y-2">
@@ -95,11 +100,7 @@ export default function AccountDetailsForm({
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {contractorId ? ['se', 'xen', 'aen', 'jen', 'vendor'].map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role.toUpperCase()}
-                    </SelectItem>
-                  )) : ['contractor', 'se', 'xen', 'aen', 'jen', 'vendor'].map((role) => (
+                  {(contractorId ? ['se', 'xen', 'aen', 'jen', 'vendor'] : ['contractor', 'se', 'xen', 'aen', 'jen', 'vendor']).map((role) => (
                     <SelectItem key={role} value={role}>
                       {role.toUpperCase()}
                     </SelectItem>
@@ -112,6 +113,7 @@ export default function AccountDetailsForm({
             </div>
           )
         }
+
         if (field.name === 'parentId' && showParentRoles) {
           return (
             <div key={field.id} className="space-y-2">
@@ -138,6 +140,7 @@ export default function AccountDetailsForm({
             </div>
           )
         }
+
         return (
           <FormGenerator
             key={field.id}
