@@ -22,7 +22,7 @@ export const MinMenu = ({
   userId,
 }: MinMenuProps) => {
   const filteredMenu = userRole === 'contractor' 
-    ? SIDE_BAR_MENU.filter(item => ['dashboard', 'create-account', 'vehicle', 'customer', 'hydrant', 'destination', 'report', 'billings', 'settings'].includes(item.path.split('/').pop() || ''))
+    ? SIDE_BAR_MENU.filter(item => ['dashboard', 'create-account', 'vehicle', 'booking', 'customer', 'hydrant', 'destination', 'report', 'billings', 'settings'].includes(item.path.split('/').pop() || ''))
     : SIDE_BAR_MENU.filter(item => ['dashboard', 'vehicle', 'customer', 'booking', 'tracking', 'report', 'settings', 'hydrant', 'destination'].includes(item.path.split('/').pop() || ''))
 
   return (

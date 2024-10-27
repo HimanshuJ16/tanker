@@ -1,4 +1,3 @@
-// components/ui/data-table.tsx
 "use client"
 
 import * as React from "react"
@@ -37,9 +36,11 @@ import { Input } from "@/components/ui/input"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  onAdd: () => void
-  onEdit: (row: TData) => void
-  onDelete: (row: TData) => void
+  onAdd?: () => void
+  onEdit?: (row: TData) => void
+  onDelete?: (row: TData) => void
+  onApprove?: (row: TData) => void
+  onDisapprove?: (row: TData) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -48,6 +49,8 @@ export function DataTable<TData, TValue>({
   onAdd,
   onEdit,
   onDelete,
+  onApprove,
+  onDisapprove,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -77,16 +80,18 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter by vehicle number..."
-          value={(table.getColumn("vehicleNumber")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter bookings..."
+          value={(table.getColumn("type")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("vehicleNumber")?.setFilterValue(event.target.value)
+            table.getColumn("type")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <Button onClick={onAdd} className="ml-auto">
-          Add Booking
-        </Button>
+        {onAdd && (
+          <Button onClick={onAdd} className="ml-auto">
+            Add Booking
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-2">
@@ -129,6 +134,7 @@ export function DataTable<TData, TValue>({
                     </TableHead>
                   )
                 })}
+                {(onEdit || onDelete || onApprove || onDisapprove) && <TableHead>Actions</TableHead>}
               </TableRow>
             ))}
           </TableHeader>
@@ -138,25 +144,50 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={
+                    (row.original as { status: string }).status === 'pending'
+                      ? 'bg-blue-200'
+                      : (row.original as { status: string }).status === 'approved'
+                      ? 'bg-green-100'
+                      : (row.original as { status: string }).status === 'disapproved'
+                      ? 'bg-red-100'
+                      : ''
+                  }
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell)  => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
-                  <TableCell>
-                    <Button variant="outline" className="mr-2" onClick={() => onEdit(row.original)}>
-                      Edit
-                    </Button>
-                    <Button variant="destructive" onClick={() => onDelete(row.original)}>
-                      Delete
-                    </Button>
-                  </TableCell>
+                  {(onEdit || onDelete || onApprove || onDisapprove) && (
+                    <TableCell>
+                      {onEdit && (
+                        <Button variant="outline" className="mr-2" onClick={() => onEdit(row.original)}>
+                          Edit
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button variant="destructive" className="mr-2" onClick={() => onDelete(row.original)}>
+                          Delete
+                        </Button>
+                      )}
+                      {onApprove && (row.original as { status: string }).status === 'pending' && (
+                        <Button variant="default" className="mr-2" onClick={() => onApprove(row.original)}>
+                          Approve
+                        </Button>
+                      )}
+                      {onDisapprove && (row.original as { status: string }).status === 'pending' && (
+                        <Button variant="destructive" onClick={() => onDisapprove(row.original)}>
+                          Disapprove
+                        </Button>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length + (onEdit || onDelete || onApprove || onDisapprove ? 1 : 0)} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

@@ -15,7 +15,7 @@ type Props = {
 
 const MaxMenu = ({ current, onExpand, onSignOut, userRole, district, userId }: Props) => {
   const filteredMenu = userRole === 'contractor' 
-    ? SIDE_BAR_MENU.filter(item => ['dashboard', 'create-account', 'vehicle', 'customer', 'hydrant', 'destination', 'report', 'billings', 'settings'].includes(item.path.split('/').pop() || ''))
+    ? SIDE_BAR_MENU.filter(item => ['dashboard', 'create-account', 'vehicle', 'customer', 'hydrant', 'destination', 'booking', 'report', 'billings', 'settings'].includes(item.path.split('/').pop() || ''))
     : SIDE_BAR_MENU.filter(item => ['dashboard', 'vehicle', 'customer', 'booking', 'tracking', 'report', 'settings', 'hydrant', 'destination'].includes(item.path.split('/').pop() || ''))
 
   return (
@@ -59,11 +59,14 @@ const MaxMenu = ({ current, onExpand, onSignOut, userRole, district, userId }: P
             icon={<LogOut />}
             onSignOut={onSignOut}
           />
-          <MenuItem
-            size="max"
-            label="Mobile App"
-            icon={<MonitorSmartphone />}
-          />
+          {userRole === 'contractor'
+            ? null :
+            <MenuItem
+              size="max"
+              label="Mobile App"
+              icon={<MonitorSmartphone />}
+            />
+          }
         </div>
       </div>
     </div>

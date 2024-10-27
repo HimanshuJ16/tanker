@@ -1,83 +1,94 @@
-// // hooks/use-bookings.ts
-// import { useState, useEffect } from 'react'
-// import { useToast } from '@/hooks/use-toast'
-// import { getBookings, addBooking, updateBooking, deleteBooking, getCustomersAndVehicles } from '@/actions/bookings'
-// import { Booking, Customer, Vehicle } from '@prisma/client'
+import { useState, useEffect } from 'react'
+import { useToast } from '@/hooks/use-toast'
+import { getBookings, addBooking, updateBooking, deleteBooking, approveBooking, disapproveBooking } from '@/actions/bookings'
+import { Booking } from '@prisma/client'
+import { BookingSchemaType } from '@/schemas/booking.schema'
 
-// export const useBookings = () => {
-//   const [bookings, setBookings] = useState<Booking[]>([])
-//   const [customers, setCustomers] = useState<Customer[]>([])
-//   const [vehicles, setVehicles] = useState<Vehicle[]>([])
-//   const [loading, setLoading] = useState(false)
-//   const { toast } = useToast()
+export const useBookings = () => {
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
 
-//   const fetchBookings = async () => {
-//     setLoading(true)
-//     const fetchedBookings = await getBookings()
-//     if (fetchedBookings) {
-//       setBookings(fetchedBookings)
-//     }
-//     setLoading(false)
-//   }
+  const fetchBookings = async () => {
+    setLoading(true)
+    const fetchedBookings = await getBookings()
+    if (fetchedBookings) {
+      setBookings(fetchedBookings)
+    }
+    setLoading(false)
+  }
 
-//   const fetchCustomersAndVehicles = async () => {
-//     setLoading(true)
-//     const { customers, vehicles } = await getCustomersAndVehicles()
-//     if (customers && vehicles) {
-//       setCustomers(customers)
-//       setVehicles(vehicles)
-//     }
-//     setLoading(false)
-//   }
+  useEffect(() => {
+    fetchBookings()
+  }, [])
 
-//   useEffect(() => {
-//     fetchBookings()
-//     fetchCustomersAndVehicles()
-//   }, [])
+  const onAddBooking = async (data: BookingSchemaType) => {
+    setLoading(true)
+    const result = await addBooking(data)
+    if (result.status === 200) {
+      toast({ title: 'Success', description: result.message })
+      await fetchBookings()
+    } else {
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
+    }
+    setLoading(false)
+  }
 
-//   const onAddBooking = async (data: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>) => {
-//     setLoading(true)
-//     const result = await addBooking(data)
-//     if (result.status === 200) {
-//       toast({ title: 'Success', description: result.message })
-//       await fetchBookings()
-//     } else {
-//       toast({ title: 'Error', description: result.message })
-//     }
-//     setLoading(false)
-//   }
+  const onUpdateBooking = async (id: string, data: BookingSchemaType) => {
+    setLoading(true)
+    const result = await updateBooking(id, data)
+    if (result.status === 200) {
+      toast({ title: 'Success', description: result.message })
+      await fetchBookings()
+    } else {
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
+    }
+    setLoading(false)
+  }
 
-//   const onUpdateBooking = async (id: string, data: Partial<Booking>) => {
-//     setLoading(true)
-//     const result = await updateBooking(id, data)
-//     if (result.status === 200) {
-//       toast({ title: 'Success', description: result.message })
-//       await fetchBookings()
-//     } else {
-//       toast({ title: 'Error', description: result.message })
-//     }
-//     setLoading(false)
-//   }
+  const onDeleteBooking = async (id: string) => {
+    setLoading(true)
+    const result = await deleteBooking(id)
+    if (result.status === 200) {
+      toast({ title: 'Success', description: result.message })
+      await fetchBookings()
+    } else {
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
+    }
+    setLoading(false)
+  }
 
-//   const onDeleteBooking = async (id: string) => {
-//     setLoading(true)
-//     const result = await deleteBooking(id)
-//     if (result.status === 200) {
-//       toast({ title: 'Success', description: result.message })
-//       await fetchBookings()
-//     } else {
-//       toast({ title: 'Error', description: result.message })
-//     }
-//     setLoading(false)
-//   }
+  const onApproveBooking = async (id: string) => {
+    setLoading(true)
+    const result = await approveBooking(id)
+    if (result.status === 200) {
+      toast({ title: 'Success', description: result.message })
+      await fetchBookings()
+    } else {
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
+    }
+    setLoading(false)
+  }
 
-//   return {
-//     bookings,
-//     customers,
-//     vehicles,
-//     loading,
-//     onAddBooking,
-//     onUpdateBooking,
-//     onDeleteBooking
-//   }
-// }
+  const onDisapproveBooking = async (id: string) => {
+    setLoading(true)
+    const result = await disapproveBooking(id)
+    if (result.status === 200) {
+      toast({ title: 'Success', description: result.message })
+      await fetchBookings()
+    } else {
+      toast({ title: 'Error', description: result.message, variant: 'destructive' })
+    }
+    setLoading(false)
+  }
+
+  return {
+    bookings,
+    loading,
+    onAddBooking,
+    onUpdateBooking,
+    onDeleteBooking,
+    onApproveBooking,
+    onDisapproveBooking
+  }
+}

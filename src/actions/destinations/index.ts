@@ -16,8 +16,6 @@ interface JwtPayload {
 interface DestinationData {
   name: string;
   address: string;
-  contactNumber: string;
-  email: string;
   latitude: number;
   longitude: number;
   agree: boolean;
@@ -135,8 +133,6 @@ export const addDestination = async (data: DestinationData) => {
           data: {
             name: data.name,
             address: data.address,
-            contactNumber: data.contactNumber,
-            email: data.email,
             latitude: data.latitude,
             longitude: data.longitude,
             agree: data.agree,
@@ -193,8 +189,6 @@ export const updateDestination = async (destinationId: string, data: Destination
     const updateData: any = {
       name: data.name,
       address: data.address,
-      contactNumber: data.contactNumber,
-      email: data.email,
       latitude: data.latitude,
       longitude: data.longitude,
       agree: data.agree,

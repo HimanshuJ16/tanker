@@ -15,8 +15,6 @@ import { getUserRole } from '@/actions/settings'
 const columns = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "address", header: "Address" },
-  { accessorKey: "contactNumber", header: "Contact Number" },
-  { accessorKey: "email", header: "Email" },
   { accessorKey: "latitude", header: "Latitude" },
   { accessorKey: "longitude", header: "Longitude" },
   { accessorKey: "vendor.username", header: "Vendor" },
@@ -44,8 +42,6 @@ export default function DestinationsPage() {
   const [formData, setFormData] = useState<DestinationSchemaType>({
     name: '',
     address: '',
-    contactNumber: '',
-    email: '',
     latitude: 0,
     longitude: 0,
     agree: false,
@@ -94,8 +90,6 @@ export default function DestinationsPage() {
     setFormData({
       name: '',
       address: '',
-      contactNumber: '',
-      email: '',
       latitude: 0,
       longitude: 0,
       agree: false,
@@ -115,8 +109,6 @@ export default function DestinationsPage() {
     setFormData({
       name: '',
       address: '',
-      contactNumber: '',
-      email: '',
       latitude: 0,
       longitude: 0,
       agree: false,
@@ -158,8 +150,6 @@ export default function DestinationsPage() {
           <form onSubmit={handleAddDestination} className="space-y-4">
             <Input name="name" placeholder="Name" value={formData.name} onChange={handleInputChange} required />
             <Input name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} required />
-            <Input name="contactNumber" placeholder="Contact Number" value={formData.contactNumber} onChange={handleInputChange} required />
-            <Input name="email" placeholder="Email" type="email" value={formData.email} onChange={handleInputChange} required />
             <Input name="latitude" placeholder="Latitude" type="number" value={formData.latitude} onChange={handleInputChange} required />
             <Input name="longitude" placeholder="Longitude" type="number" value={formData.longitude} onChange={handleInputChange} required />
             <Select name="vendorId" value={formData.vendorId} onValueChange={handleSelectChange('vendorId')}>
@@ -199,8 +189,6 @@ export default function DestinationsPage() {
           <form onSubmit={handleUpdateDestination} className="space-y-4">
             <Input name="name" placeholder="Name" value={formData.name} onChange={handleInputChange} required />
             <Input name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} required />
-            <Input name="contactNumber" placeholder="Contact Number" value={formData.contactNumber} onChange={handleInputChange} required />
-            <Input name="email" placeholder="Email" type="email" value={formData.email} onChange={handleInputChange} required />
             <Input name="latitude" placeholder="Latitude" type="number" value={formData.latitude} onChange={handleInputChange} required />
             <Input name="longitude" placeholder="Longitude" type="number" value={formData.longitude} onChange={handleInputChange} required />
             <Select name="vendorId" value={formData.vendorId} onValueChange={handleSelectChange('vendorId')}>
