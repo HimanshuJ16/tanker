@@ -241,46 +241,50 @@ export async function fetchParentRoles(district: string, role: string) {
 
 export async function fetchContractorDistrict(contractorId: string) {
   try {
-    console.log(`Attempting to fetch contractor with ID: ${contractorId}`)
+    console.log(`Attempting to fetch contractor with ID: ${contractorId}`);
 
     const contractor = await client.user.findUnique({
       where: { id: contractorId },
-      select: { 
+      select: {
         id: true,
-        district: true, 
-        circle: { 
-          select: { 
+        district: true,
+        circle: {
+          select: {
             id: true,
-            name: true 
-          } 
-        } 
+            name: true,
+          },
+        },
       },
-    })
+    });
 
     if (!contractor) {
-      console.error(`Contractor not found for ID: ${contractorId}`)
-      
+      console.error(`Contractor not found for ID: ${contractorId}`);
+
       // Log all contractors for debugging
       const allContractors = await client.contractor.findMany({
-        select: { id: true, username: true, district: true }
-      })
-      console.log('All contractors:', JSON.stringify(allContractors, null, 2))
+        select: { id: true, username: true, district: true },
+      });
+      console.log('All contractors:', JSON.stringify(allContractors, null, 2));
 
-      throw new Error(`Contractor not found for ID: ${contractorId}`)
+      throw new Error(`Contractor not found for ID: ${contractorId}`);
     }
 
-    console.log(`Contractor found:`, JSON.stringify(contractor, null, 2))
+    console.log(`Contractor found:`, JSON.stringify(contractor, null, 2));
 
     // Use circle name as district if contractor's district is not set
-    const district = contractor.district || contractor.circle?.name || ''
+    const district = contractor.district || contractor.circle?.name || '';
 
     if (!district) {
-      throw new Error(`No district found for contractor ID: ${contractorId}`)
+      throw new Error(`No district found for contractor ID: ${contractorId}`);
     }
 
-    return district
+    return district;
   } catch (error) {
-    console.error('Error in fetchContractorDistrict:', error)
-    throw error
+    console.error('Error in fetchContractorDistrict:', error);
+    // Log error details for production (e.g., log service or more specific error message)
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`Production error for contractor ID ${contractorId}:`, error);
+    }
+    throw error;
   }
 }

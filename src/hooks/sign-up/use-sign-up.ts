@@ -56,48 +56,49 @@ export function useSignUpForm(contractorId?: string) {
   useEffect(() => {
     const fetchDistricts = async () => {
       if (districtsFetched) return;
-
+  
       setLoading(true);
       try {
         if (contractorId) {
-          console.log(`Fetching district for contractor ID: ${contractorId}`)
-          const district = await fetchContractorDistrict(contractorId)
+          console.log(`Fetching district for contractor ID: ${contractorId}`);
+          const district = await fetchContractorDistrict(contractorId);
           if (district) {
-            console.log(`District fetched: ${district}`)
-            setDistricts([district])
-            methods.setValue('district', district)
+            console.log(`District fetched: ${district}`);
+            setDistricts([district]);
+            methods.setValue('district', district);
           } else {
-            throw new Error('Failed to fetch contractor district')
+            console.error(`No district returned for contractor ID: ${contractorId}`);
+            throw new Error('Failed to fetch contractor district');
           }
         } else {
-          const response = await fetch('/api/districts')
+          const response = await fetch('/api/districts');
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-          const data = await response.json()
+          const data = await response.json();
           if (!Array.isArray(data)) {
-            throw new Error('Unexpected data format')
+            throw new Error('Unexpected data format');
           }
-          setDistricts(data)
+          setDistricts(data);
           if (data.length > 0) {
-            methods.setValue('district', data[0])
+            methods.setValue('district', data[0]);
           }
         }
-        setDistrictsFetched(true)
+        setDistrictsFetched(true);
       } catch (error) {
-        console.error('Failed to fetch districts:', error)
+        console.error('Failed to fetch districts:', error);
         toast({
           title: 'Error',
           description: error instanceof Error ? error.message : 'Failed to load districts. Please try again later.',
           variant: 'destructive',
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    fetchDistricts()
-  }, [toast, districtsFetched, methods, contractorId])
+    };
+  
+    fetchDistricts();
+  }, [toast, districtsFetched, methods, contractorId]);
 
   useEffect(() => {
     const district = methods.watch('district')
