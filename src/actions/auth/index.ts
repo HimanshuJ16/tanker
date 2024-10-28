@@ -258,6 +258,8 @@ export async function fetchContractorDistrict(contractorId: string) {
     }
 
     const district = user.district || user.circle?.name || '';
+    
+    console.log(`Fetched district for user ID: ${contractorId}: ${district}`);
 
     if (!district) {
       throw new Error(`No district found for user ID: ${contractorId}`);

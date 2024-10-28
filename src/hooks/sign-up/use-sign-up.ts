@@ -28,7 +28,7 @@ export function useSignUpForm(contractorId?: string) {
 
   const fetchParentRolesData = useCallback(async (district: string, role: string) => {
     if (district && ['aen', 'jen', 'vendor'].includes(role)) {
-      setLoading(true)
+      // setLoading(true)
       try {
         const parentRolesData = await fetchParentRoles(district, role)
         console.log('Fetched parent roles:', parentRolesData)
