@@ -20,7 +20,7 @@ export default function ContractorCreateAccountPage() {
         if (typeof id !== 'string') {
           throw new Error('Invalid contractor ID')
         }
-        await fetchContractorDistrict(id)
+        // await fetchContractorDistrict(id)
         setIsValidContractor(true)
       } catch (error) {
         console.error('Error validating contractor:', error)
