@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { fetchContractorDistrict } from '@/actions/auth'
+import { fetchContractorDistrict } from '@/actions/auth/index'
 import { useToast } from '@/hooks/use-toast'
 import SignUpFormProvider from '@/components/forms/sign-up/form-provider'
 import RegistrationFormStep from '@/components/forms/sign-up/registration-step'
