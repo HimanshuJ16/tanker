@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 
 import { useToast } from '@/hooks/use-toast'
 import { UserRegistrationProps, UserRegistrationSchema } from '@/schemas/auth.schema'
