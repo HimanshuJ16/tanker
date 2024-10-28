@@ -1,4 +1,4 @@
-// 'use client'
+'use client'
 
 import { useToast } from '@/hooks/use-toast'
 import { UserRegistrationProps, UserRegistrationSchema } from '@/schemas/auth.schema'
@@ -28,6 +28,7 @@ export function useSignUpForm(contractorId?: string) {
 
   const fetchParentRolesData = useCallback(async (district: string, role: string) => {
     if (district && ['aen', 'jen', 'vendor'].includes(role)) {
+      setLoading(true)
       try {
         const parentRolesData = await fetchParentRoles(district, role)
         console.log('Fetched parent roles:', parentRolesData)
@@ -59,12 +60,13 @@ export function useSignUpForm(contractorId?: string) {
   
       setLoading(true);
       try {
+        let fetchedDistricts: string[] = [];
         if (contractorId) {
           console.log(`Fetching district for user ID: ${contractorId}`)
           const district = await fetchContractorDistrict(contractorId)
           if (district) {
             console.log(`District fetched: ${district}`)
-            setDistricts([district])
+            fetchedDistricts = [district]
             methods.setValue('district', district)
           } else {
             console.error(`No district returned for user ID: ${contractorId}`)
@@ -79,10 +81,11 @@ export function useSignUpForm(contractorId?: string) {
           if (!Array.isArray(data)) {
             throw new Error('Unexpected data format');
           }
-          setDistricts(data);
-          if (data.length > 0) {
-            methods.setValue('district', data[0]);
-          }
+          fetchedDistricts = data;
+        }
+        setDistricts(fetchedDistricts);
+        if (fetchedDistricts.length > 0) {
+          methods.setValue('district', fetchedDistricts[0]);
         }
         setDistrictsFetched(true);
       } catch (error) {
@@ -103,7 +106,9 @@ export function useSignUpForm(contractorId?: string) {
   useEffect(() => {
     const district = methods.watch('district')
     const role = methods.watch('role')
-    fetchParentRolesData(district, role)
+    if (district && role) {
+      fetchParentRolesData(district, role)
+    }
   }, [methods.watch('district'), methods.watch('role'), fetchParentRolesData])
 
   const onHandleSubmit = methods.handleSubmit(
