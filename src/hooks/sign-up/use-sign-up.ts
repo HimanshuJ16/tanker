@@ -60,15 +60,15 @@ export function useSignUpForm(contractorId?: string) {
       setLoading(true);
       try {
         if (contractorId) {
-          console.log(`Fetching district for contractor ID: ${contractorId}`);
-          const district = await fetchContractorDistrict(contractorId);
+          console.log(`Fetching district for user ID: ${contractorId}`)
+          const district = await fetchContractorDistrict(contractorId)
           if (district) {
-            console.log(`District fetched: ${district}`);
-            setDistricts([district]);
-            methods.setValue('district', district);
+            console.log(`District fetched: ${district}`)
+            setDistricts([district])
+            methods.setValue('district', district)
           } else {
-            console.error(`No district returned for contractor ID: ${contractorId}`);
-            throw new Error('Failed to fetch contractor district');
+            console.error(`No district returned for user ID: ${contractorId}`)
+            throw new Error('Failed to fetch user district')
           }
         } else {
           const response = await fetch('/api/districts');
