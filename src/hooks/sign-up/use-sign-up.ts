@@ -64,6 +64,7 @@ export function useSignUpForm(contractorId?: string) {
         if (contractorId) {
           console.log(`Fetching district for user ID: ${contractorId}`)
           const district = await fetchContractorDistrict(contractorId)
+          console.log(`District fetched: ${district}`)
           if (district) {
             console.log(`District fetched: ${district}`)
             fetchedDistricts = [district]
