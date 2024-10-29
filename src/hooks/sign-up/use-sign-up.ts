@@ -28,8 +28,8 @@ export function useSignUpForm(contractorId?: string) {
 
   const fetchParentRolesData = useCallback(async (district: string, role: string) => {
     if (district && ['aen', 'jen', 'vendor'].includes(role)) {
-      // setLoading(true)
       try {
+        // setLoading(true)
         const parentRolesData = await fetchParentRoles(district, role)
         console.log('Fetched parent roles:', parentRolesData)
         setParentRoles(parentRolesData)
@@ -60,14 +60,12 @@ export function useSignUpForm(contractorId?: string) {
   
       setLoading(true);
       try {
-        let fetchedDistricts: string[] = [];
         if (contractorId) {
           console.log(`Fetching district for user ID: ${contractorId}`)
           const district = await fetchContractorDistrict(contractorId)
-          console.log(`District fetched: ${district}`)
           if (district) {
             console.log(`District fetched: ${district}`)
-            fetchedDistricts = [district]
+            setDistricts([district])
             methods.setValue('district', district)
           } else {
             console.error(`No district returned for user ID: ${contractorId}`)
@@ -82,11 +80,10 @@ export function useSignUpForm(contractorId?: string) {
           if (!Array.isArray(data)) {
             throw new Error('Unexpected data format');
           }
-          fetchedDistricts = data;
-        }
-        setDistricts(fetchedDistricts);
-        if (fetchedDistricts.length > 0) {
-          methods.setValue('district', fetchedDistricts[0]);
+          setDistricts(data);
+          if (data.length > 0) {
+            methods.setValue('district', data[0]);
+          }
         }
         setDistrictsFetched(true);
       } catch (error) {
@@ -107,9 +104,7 @@ export function useSignUpForm(contractorId?: string) {
   useEffect(() => {
     const district = methods.watch('district')
     const role = methods.watch('role')
-    if (district && role) {
-      fetchParentRolesData(district, role)
-    }
+    fetchParentRolesData(district, role)
   }, [methods.watch('district'), methods.watch('role'), fetchParentRolesData])
 
   const onHandleSubmit = methods.handleSubmit(
